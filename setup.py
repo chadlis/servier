@@ -2,7 +2,12 @@
 
 """The setup script."""
 
+from pkg_resources import require
 from setuptools import setup, find_packages
+import os
+
+ENV_DOCKERMODE = os.getenv("DOCKERMODE")
+
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -11,9 +16,12 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = ['pandas>=1.4.2',
-'pandera>=0.10.1',
-'scikit-learn>=1.0.2',
+'pandera==0.10.1',
+'scikit-learn==1.0.2',
+'rdkit-pypi==2022.3.1',
 ]
+if ENV_DOCKERMODE is None:
+   requirements.append('tensorflow==2.7.0') 
 
 test_requirements = ['pytest>=3', ]
 

@@ -10,10 +10,12 @@ COL_SMILES = "smiles"
 COL_ID = "mol_id"
 RANDOM_STATE = 42
 
-DATA_PATH = Path("data")
+DATA_PATH = Path("../data")
 RAW_DATA_PATH = DATA_PATH/"0_raw"
-INTERMEDIATE_DATA_PATH = DATA_PATH/"1_intermediate"
-INPUT_FILENAME = "dataset_single.csv"
+INTERMEDIATE_DATA_PATH = DATA_PATH/"1_primary"
+FEATURE_DATA_PATH = DATA_PATH/"2_feature"
+MODEL_DATA_PATH = DATA_PATH/"3_model"
+INPUT_FILENAME = "data.csv"
 
 DATA_TRAIN_FILENAME = "data_train.csv"
 DATA_VALID_FILENAME = "data_valid.csv"

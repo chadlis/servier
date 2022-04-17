@@ -107,3 +107,6 @@ ENV/
 
 # File system
 .DS_Store
+
+# Wheels
+*.whl

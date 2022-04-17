@@ -17,6 +17,7 @@ from .config import (
 )
 
 from .pipelines.data_splitting import split_data
+from .pipelines.training import train
 
 
 def main():
@@ -89,13 +90,6 @@ def main():
         predict(input_path, model_path, reporting_path)
     return 0
 
-
-def train(input_path, valid_path, model_path, reporting_path):
-    print("Train..")
-    print(f"input_path: {input_path}")
-    print(f"valid_path: {valid_path}")
-    print(f"model_path: {model_path}")
-    print(f"reporting_path: {reporting_path}")
 
 
 def evaluate(input_path, model_path, reporting_path):
