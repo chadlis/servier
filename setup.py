@@ -10,14 +10,17 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [ ]
+requirements = ['pandas>=1.4.2',
+'pandera>=0.10.1',
+'scikit-learn>=1.0.2',
+]
 
 test_requirements = ['pytest>=3', ]
 
 setup(
     author="Salah Chadli",
     author_email='salah.chadli@gmail.com',
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

@@ -11,7 +11,7 @@ COL_TARGET = "P1"
 COL_SMILES = "smiles"
 COL_ID = "mol_id"
 
-DATA_PATH = Path("./../data")
+DATA_PATH = Path("./data")
 RAW_DATA_PATH = DATA_PATH / "0_raw"
 PRIMARY_DATA_PATH = DATA_PATH / "1_primary"
 FEATURE_DATA_PATH = DATA_PATH / "2_feature"
