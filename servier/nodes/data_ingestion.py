@@ -4,7 +4,10 @@ from ..config import logging
 from pathlib import Path
 
 
-def ingest_data(data_path, msg_type=None, ):
+def ingest_data(
+    data_path,
+    msg_type=None,
+):
     if msg_type is not None:
         msg_type = f"| {msg_type} "
     else:
@@ -16,4 +19,3 @@ def ingest_data(data_path, msg_type=None, ):
     logging.info(f" Data Ingestion {msg_type}| {len(df)} rows ingested")
     logging.info(f" Data Ingestion {msg_type}| Finished!")
     return df
-
