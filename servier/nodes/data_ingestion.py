@@ -1,6 +1,6 @@
 from pathlib import Path
 import pandas as pd
-from ..constants import logging
+from ..config import logging
 from pathlib import Path
 
 
