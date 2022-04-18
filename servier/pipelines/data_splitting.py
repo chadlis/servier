@@ -14,6 +14,7 @@ from sklearn.model_selection import train_test_split
 
 
 def split_data(
+    experiment,
     data_path,
     output_path,
     train_size=TRAINING_SIZE,
@@ -24,10 +25,17 @@ def split_data(
     filename_test=DATA_TEST_FILENAME,
     filename_valid=DATA_VALID_FILENAME,
 ):
+    """
+    Split data into train, (validation) and test sets
+    """
     if type(output_path) == str:
         output_path = Path(output_path)
+    output_path = output_path/experiment
+    output_path.mkdir(parents=True, exist_ok=True)
+    
     df = ingest_data(data_path, msg_type="Full Data")
     df = validate_dataframe(df, predict=False, msg_type="Full Data")
+    
 
     if test_only:
         logging.info(f" Data Splitting | Train: {train_size}, Test: {1-train_size}")

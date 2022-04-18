@@ -1,4 +1,10 @@
-import numpy as np 
+from ..config import COL_SMILES, COL_TARGET
+from .graphizer import graphs_from_smiles
+from .data import MPNNDataset
+from numpy import zeros
+from pandas.core.frame import DataFrame
+from tensorflow import data
+
 
 class Featurizer:
     def __init__(self, allowable_sets):
@@ -10,7 +16,7 @@ class Featurizer:
             self.dim += len(s)
 
     def encode(self, inputs):
-        output = np.zeros((self.dim,))
+        output = zeros((self.dim,))
         for name_feature, feature_mapping in self.features_mapping.items():
             feature = getattr(self, name_feature)(inputs)
             if feature not in feature_mapping:
@@ -42,7 +48,7 @@ class BondFeaturizer(Featurizer):
         self.dim += 1
 
     def encode(self, bond):
-        output = np.zeros((self.dim,))
+        output = zeros((self.dim,))
         if bond is None:
             output[-1] = 1.0
             return output
@@ -57,7 +63,7 @@ class BondFeaturizer(Featurizer):
 
 
     
-atom_featurizer = AtomFeaturizer(
+ATOM_FEATURIZER = AtomFeaturizer(
     allowable_sets={
         "symbol": {"B", "Br", "C", "Ca", "Cl", "F", "H", "I", "N", "Na", "O", "P", "S"},
         "n_valence": {0, 1, 2, 3, 4, 5, 6},
@@ -66,9 +72,24 @@ atom_featurizer = AtomFeaturizer(
     }
 )
 
-bond_featurizer = BondFeaturizer(
+BOND_FEATURIZER = BondFeaturizer(
     allowable_sets={
         "bond_type": {"single", "double", "triple", "aromatic"},
         "conjugated": {True, False},
     }
 )
+
+
+def get_mpnn_dataset(data, atom_featurizer=ATOM_FEATURIZER, bond_featurizer=BOND_FEATURIZER,
+                     col_smiles=COL_SMILES, col_target=COL_TARGET, return_dims=False):
+    
+    if type(data) == DataFrame:
+        x = graphs_from_smiles(data[col_smiles], atom_featurizer, bond_featurizer)
+        y = data[col_target]
+    else:
+        x = graphs_from_smiles(data, atom_featurizer, bond_featurizer)
+        y = None
+    
+    if return_dims:
+        return MPNNDataset(x, y), x[0][0][0].shape[0], x[1][0][0].shape[0]
+    return MPNNDataset(x, y)

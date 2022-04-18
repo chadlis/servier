@@ -7,17 +7,19 @@ from .config import (
     PRIMARY_DATA_PATH,
     MODEL_DATA_PATH,
     REPORTING_DATA_PATH,
-)
-from .config import (
-    INPUT_FILENAME,
-    DATA_TRAIN_FILENAME,
-    DATA_VALID_FILENAME,
-    DATA_TEST_FILENAME,
     MODEL_DATA_PATH_NAME,
 )
 
 from .pipelines.data_splitting import split_data
 from .pipelines.training import train
+from .pipelines.evaluation import evaluate
+from .pipelines.prediction import predict
+import string    
+import random
+
+from flask import Flask
+
+
 
 
 def main():
@@ -25,9 +27,10 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "_",
-        default="train",
-        choices=["split", "train", "evaluate", "predict"],
+        "--mode",
+        default="split;train;evaluate;predict",
+        type=str,
+        #choices=["split", "train", "evaluate", "predict",],
         help="split data, train, evaluate or predict (default: %(default)s)",
     )
 
@@ -41,69 +44,69 @@ def main():
     parser.add_argument("--model_path", type=str, help="Model path")
     parser.add_argument("--reporting_path", type=str, help="Reporting path")
     parser.add_argument("--test_only", action="store_true", help="Output path")
+    parser.add_argument("--experiment", type=str, help="Experiment Name")
 
     args = parser.parse_args()
-    mode = args._
+    mode = args.mode
     input_path = args.input_path
     valid_path = args.valid_path
     output_path = args.output_path
     model_path = args.model_path
     reporting_path = args.reporting_path
     test_only = args.test_only
+    experiment=args.experiment
 
-    if mode == "split":
+    if experiment is None:
+        experiment = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 7))
+
+    print(f"Experiment: {experiment}")
+
+    if "split" in mode:
+        print("\nSplitting data..")
         if input_path is None:
-            input_path = RAW_DATA_PATH / INPUT_FILENAME
+            input_path = RAW_DATA_PATH
         if output_path is None:
             output_path = PRIMARY_DATA_PATH
-        split_data(input_path, output_path, test_only=test_only)
-    elif mode == "train":
+        split_data(experiment,
+        input_path,
+        output_path, test_only=test_only,)
+        input_path = output_path
+        valid_path = output_path
+    if "train" in mode:
+        print("\nTraining..")
         if input_path is None:
-            input_path = PRIMARY_DATA_PATH / DATA_TRAIN_FILENAME
+            input_path = PRIMARY_DATA_PATH
             if valid_path is None:
-                valid_path = PRIMARY_DATA_PATH / DATA_VALID_FILENAME
+                valid_path = PRIMARY_DATA_PATH
         if model_path is None:
-            model_path = MODEL_DATA_PATH / MODEL_DATA_PATH_NAME
+            model_path = MODEL_DATA_PATH
         if reporting_path is None:
             reporting_path = REPORTING_DATA_PATH
         train(
+            experiment,
             input_path,
             valid_path=valid_path,
             model_path=model_path,
             reporting_path=reporting_path,
         )
-    elif mode == "evaluate":
+    if "evaluate" in mode:
+        print("\nEvaluation..")
         if input_path is None:
-            input_path = PRIMARY_DATA_PATH / DATA_TEST_FILENAME
+            input_path = PRIMARY_DATA_PATH
         if model_path is None:
-            model_path = MODEL_DATA_PATH / MODEL_DATA_PATH_NAME
+            model_path = MODEL_DATA_PATH
         if reporting_path is None:
             reporting_path = REPORTING_DATA_PATH
-        evaluate(input_path, model_path, reporting_path)
-    elif mode == "predict":
+        evaluate(experiment, input_path, model_path, reporting_path,)
+    if "predict" in mode:
+        print("\nPrediction..")
         if input_path is None:
-            input_path = PRIMARY_DATA_PATH / DATA_TEST_FILENAME
+            input_path = PRIMARY_DATA_PATH
         if model_path is None:
-            model_path = MODEL_DATA_PATH / MODEL_DATA_PATH_NAME
+            model_path = MODEL_DATA_PATH
         if reporting_path is None:
             reporting_path = REPORTING_DATA_PATH
-        predict(input_path, model_path, reporting_path)
-    return 0
-
-
-
-def evaluate(input_path, model_path, reporting_path):
-    print("Evaluate..")
-    print(f"input_path: {input_path}")
-    print(f"model_path: {model_path}")
-    print(f"reporting_path: {reporting_path}")
-
-
-def predict(input_path, model_path, reporting_path):
-    print("Predict..")
-    print(f"input_path: {input_path}")
-    print(f"model_path: {model_path}")
-    print(f"reporting_path: {reporting_path}")
+        predict(experiment, model_path, reporting_path, data_path=input_path,)
 
 
 if __name__ == "__main__":

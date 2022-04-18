@@ -21,10 +21,18 @@ REPORTING_DATA_PATH = DATA_PATH / "4_reporting"
 INPUT_FILENAME = "data.csv"
 
 MODEL_DATA_PATH_NAME = "model"
+TRAINING_HISTORY_FILE_NAME = "training_history.json"
+TEST_RESULTS_FILE_NAME = "test_results.json"
+PREDICTIONS_FILE_NAME = "predictions.csv"
+
 
 DATA_TRAIN_FILENAME = "data_train.csv"
 DATA_VALID_FILENAME = "data_valid.csv"
 DATA_TEST_FILENAME = "data_test.csv"
+
+DATA_TRAIN_PATTERN = "*train.csv"
+DATA_VALID_PATTERN = "*valid.csv"
+DATA_TEST_PATTERN = "*test.csv"
 
 TRAINING_SIZE = 0.7
 MAX_EPOCHS = 1

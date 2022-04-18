@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
-from constants import COL_TARGET
+from ..config import COL_TARGET
+
 class EdgeNetwork(tf.keras.layers.Layer):
     def build(self, input_shape):
         self.atom_dim = input_shape[0][-1]
@@ -38,7 +39,6 @@ class EdgeNetwork(tf.keras.layers.Layer):
         )
         return aggregated_features
 
-
 class MessagePassing(tf.keras.layers.Layer):
     def __init__(self, units, steps=4, **kwargs):
         super().__init__(**kwargs)
@@ -72,8 +72,6 @@ class MessagePassing(tf.keras.layers.Layer):
             )
         return atom_features_updated
 
-
-
 class PartitionPadding(tf.keras.layers.Layer):
     def __init__(self, batch_size, **kwargs):
         super().__init__(**kwargs)
@@ -104,7 +102,6 @@ class PartitionPadding(tf.keras.layers.Layer):
         gather_indices = tf.squeeze(gather_indices, axis=-1)
         return tf.gather(atom_features_stacked, gather_indices, axis=0)
 
-
 class TransformerEncoderReadout(tf.keras.layers.Layer):
     def __init__(
         self, num_heads=8, embed_dim=64, dense_dim=512, batch_size=32, **kwargs
@@ -128,7 +125,6 @@ class TransformerEncoderReadout(tf.keras.layers.Layer):
         proj_input = self.layernorm_1(x + attention_output)
         proj_output = self.layernorm_2(proj_input + self.dense_proj(proj_input))
         return self.average_pooling(proj_output)
-
 
 def MPNNModel(
     atom_dim,
@@ -166,7 +162,6 @@ def MPNNModel(
         outputs=[x],
     )
     return model
-
 
 def get_imbalance_params(df):
     neg, pos = np.bincount(df[COL_TARGET])

@@ -1,23 +1,18 @@
-from pathlib import Path
-import tensorflow as tf
-from graphizer import graphs_from_smiles, molecule_from_smiles, graph_from_molecule
-
-from ..config import COL_ID, COL_SMILES, COL_TARGET, DATA_SCHEMA, RANDOM_STATE, DATA_TRAIN_FILENAME, DATA_VALID_FILENAME, DATA_TEST_FILENAME
+from ..config import COL_SMILES, COL_TARGET, DATA_SCHEMA, RANDOM_STATE, DATA_TRAIN_FILENAME, DATA_VALID_FILENAME, DATA_TEST_FILENAME
 from ..config import DATA_SCHEMA, DATA_SCHEMA_PREDICTION
 
-
-from featurizer import atom_featurizer, bond_featurizer
-
-import pandas as pd
-
+from pandas import read_csv
 from sklearn.model_selection import train_test_split
-
-
+from pathlib import Path
+import tensorflow as tf
 
 import logging
 logging.getLogger().setLevel(logging.DEBUG)
 
 def validate_dataframe(data, predict=False, check_balance=True):
+    """
+    Validate dataframe against the defined schemas
+    """
     if predict:
         data = DATA_SCHEMA_PREDICTION.validate(data).drop_duplicates(subset=[COL_SMILES])
         logging.info(f" Data Validation | Finished!")
@@ -37,9 +32,13 @@ def validate_dataframe(data, predict=False, check_balance=True):
     
 def split_data(data_path, output_path, train_size=0.7, test_only=True, col_target=COL_TARGET, random_state=RANDOM_STATE,
               filename_train=DATA_TRAIN_FILENAME, filename_test=DATA_TEST_FILENAME, filename_valid=DATA_VALID_FILENAME):
+    
+    """
+    Split data to train, (validation) and test sets
+    """
     data_path = Path(data_path)
     output_path = Path(output_path)
-    df = pd.read_csv(data_path).reset_index(drop=True)
+    df = read_csv(data_path).reset_index(drop=True)
     df = validate_dataframe(df)
     
     if test_only:
@@ -58,7 +57,6 @@ def split_data(data_path, output_path, train_size=0.7, test_only=True, col_targe
     df_test.reset_index(drop=True).to_csv(output_path/filename_test, index=False,)
     logging.info(f" Data Splitting | Finished!")
     return str(output_path/filename_train), str(output_path/filename_valid), str(output_path/filename_test)
-
 
 
 def prepare_batch(x_batch, y_batch):
@@ -94,17 +92,3 @@ def MPNNDataset(X, y, batch_size=32, shuffle=False):
     if shuffle:
         dataset = dataset.shuffle(1024)
     return dataset.batch(batch_size).map(prepare_batch, -1).prefetch(-1)
-
-def get_mpnn_dataset(data, atom_featurizer=atom_featurizer, bond_featurizer=bond_featurizer,
-                     col_smiles=COL_SMILES, col_target=COL_TARGET, return_dims=False):
-    
-    if type(data) == pd.core.frame.DataFrame:
-        x = graphs_from_smiles(data[col_smiles], atom_featurizer, bond_featurizer)
-        y = data[col_target]
-    else:
-        x = graphs_from_smiles(data, atom_featurizer, bond_featurizer)
-        y = None
-    
-    if return_dims:
-        return MPNNDataset(x, y), x[0][0][0].shape[0], x[1][0][0].shape[0]
-    return MPNNDataset(x, y)
