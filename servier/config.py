@@ -3,7 +3,7 @@ import logging
 from pandera import Column, DataFrameSchema, Check, Index
 
 
-logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().setLevel(logging.INFO)
 
 RANDOM_STATE = 42
 
@@ -27,7 +27,7 @@ DATA_VALID_FILENAME = "data_valid.csv"
 DATA_TEST_FILENAME = "data_test.csv"
 
 TRAINING_SIZE = 0.7
-MAX_EPOCHS = 2
+MAX_EPOCHS = 1
 
 
 DATA_SCHEMA = DataFrameSchema(
