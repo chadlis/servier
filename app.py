@@ -33,4 +33,5 @@ def hello_world():
 
     model = keras.models.load_model(model_path)
     prediction = model.predict(dataset)
+    print(f"{model_path} : {str(round(prediction[0][0], 2))}")
     return f"{model_path} : {str(round(prediction[0][0], 2))}"
