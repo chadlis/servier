@@ -6,6 +6,7 @@ from .config import (
     RAW_DATA_PATH,
     PRIMARY_DATA_PATH,
     MODEL_DATA_PATH,
+    MODEL_DATA_PATH_NAME,
     REPORTING_DATA_PATH,
     MAX_EPOCHS,
     LEARNING_RATE,
@@ -15,11 +16,9 @@ from .pipelines.data_splitting import split_data
 from .pipelines.training import train
 from .pipelines.evaluation import evaluate
 from .pipelines.prediction import predict
+from .app import host
 import string    
 import random
-
-from flask import Flask
-
 
 
 
@@ -118,6 +117,13 @@ def main():
         if reporting_path is None:
             reporting_path = REPORTING_DATA_PATH
         predict(experiment, model_path, reporting_path, data_path=input_path,)
+    if "host" in mode:
+        print("\n Hosting app..")
+        host()
+
+
+
+
 
 
 if __name__ == "__main__":
