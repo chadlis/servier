@@ -23,7 +23,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4'
+          cpus: '1'
           memory: 8g
 
   evaluate:
@@ -62,5 +62,5 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4'
+          cpus: '1'
           memory: 8g
