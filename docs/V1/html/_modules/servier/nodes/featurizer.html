@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>servier.nodes.featurizer &#8212; servier 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for servier.nodes.featurizer</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">COL_SMILES</span><span class="p">,</span> <span class="n">COL_TARGET</span>
+<span class="kn">from</span> <span class="nn">.graphizer</span> <span class="kn">import</span> <span class="n">graphs_from_smiles</span>
+<span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">MPNNDataset</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">zeros</span>
+<span class="kn">from</span> <span class="nn">pandas.core.frame</span> <span class="kn">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">tensorflow</span> <span class="kn">import</span> <span class="n">data</span>
+
+
+<div class="viewcode-block" id="Featurizer"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.featurizer.Featurizer">[docs]</a><span class="k">class</span> <span class="nc">Featurizer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allowable_sets</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">allowable_sets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">features_mapping</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Featurizer.encode"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.featurizer.Featurizer.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get the target features from the input (atom or band features)&quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,))</span>
+        <span class="k">for</span> <span class="n">name_feature</span><span class="p">,</span> <span class="n">feature_mapping</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">feature</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name_feature</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">feature_mapping</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">output</span><span class="p">[</span><span class="n">feature_mapping</span><span class="p">[</span><span class="n">feature</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">return</span> <span class="n">output</span></div></div>
+
+
+<div class="viewcode-block" id="AtomFeaturizer"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.featurizer.AtomFeaturizer">[docs]</a><span class="k">class</span> <span class="nc">AtomFeaturizer</span><span class="p">(</span><span class="n">Featurizer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allowable_sets</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">allowable_sets</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AtomFeaturizer.symbol"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.featurizer.AtomFeaturizer.symbol">[docs]</a>    <span class="k">def</span> <span class="nf">symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AtomFeaturizer.n_valence"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.featurizer.AtomFeaturizer.n_valence">[docs]</a>    <span class="k">def</span> <span class="nf">n_valence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetTotalValence</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AtomFeaturizer.n_hydrogens"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.featurizer.AtomFeaturizer.n_hydrogens">[docs]</a>    <span class="k">def</span> <span class="nf">n_hydrogens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetTotalNumHs</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AtomFeaturizer.hybridization"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.featurizer.AtomFeaturizer.hybridization">[docs]</a>    <span class="k">def</span> <span class="nf">hybridization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetHybridization</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="BondFeaturizer"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.featurizer.BondFeaturizer">[docs]</a><span class="k">class</span> <span class="nc">BondFeaturizer</span><span class="p">(</span><span class="n">Featurizer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allowable_sets</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">allowable_sets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="BondFeaturizer.encode"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.featurizer.BondFeaturizer.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bond</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,))</span>
+        <span class="k">if</span> <span class="n">bond</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="k">return</span> <span class="n">output</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="BondFeaturizer.bond_type"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.featurizer.BondFeaturizer.bond_type">[docs]</a>    <span class="k">def</span> <span class="nf">bond_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bond</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetBondType</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BondFeaturizer.conjugated"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.featurizer.BondFeaturizer.conjugated">[docs]</a>    <span class="k">def</span> <span class="nf">conjugated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bond</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetIsConjugated</span><span class="p">()</span></div></div>
+
+
+<span class="n">ATOM_FEATURIZER</span> <span class="o">=</span> <span class="n">AtomFeaturizer</span><span class="p">(</span>
+    <span class="n">allowable_sets</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;Br&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;n_valence&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">},</span>
+        <span class="s2">&quot;n_hydrogens&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">},</span>
+        <span class="s2">&quot;hybridization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;sp&quot;</span><span class="p">,</span> <span class="s2">&quot;sp2&quot;</span><span class="p">,</span> <span class="s2">&quot;sp3&quot;</span><span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">BOND_FEATURIZER</span> <span class="o">=</span> <span class="n">BondFeaturizer</span><span class="p">(</span>
+    <span class="n">allowable_sets</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;bond_type&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="s2">&quot;double&quot;</span><span class="p">,</span> <span class="s2">&quot;triple&quot;</span><span class="p">,</span> <span class="s2">&quot;aromatic&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;conjugated&quot;</span><span class="p">:</span> <span class="p">{</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_mpnn_dataset"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.featurizer.get_mpnn_dataset">[docs]</a><span class="k">def</span> <span class="nf">get_mpnn_dataset</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">atom_featurizer</span><span class="o">=</span><span class="n">ATOM_FEATURIZER</span><span class="p">,</span>
+    <span class="n">bond_featurizer</span><span class="o">=</span><span class="n">BOND_FEATURIZER</span><span class="p">,</span>
+    <span class="n">col_smiles</span><span class="o">=</span><span class="n">COL_SMILES</span><span class="p">,</span>
+    <span class="n">col_target</span><span class="o">=</span><span class="n">COL_TARGET</span><span class="p">,</span>
+    <span class="n">return_dims</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">DataFrame</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">graphs_from_smiles</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">col_smiles</span><span class="p">],</span> <span class="n">atom_featurizer</span><span class="p">,</span> <span class="n">bond_featurizer</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">col_target</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">graphs_from_smiles</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">atom_featurizer</span><span class="p">,</span> <span class="n">bond_featurizer</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">return_dims</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">MPNNDataset</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">MPNNDataset</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">servier</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">servier</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Salah Chadli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -272,7 +272,7 @@ Documentation
 -------
 
 Documentation was generated with Sphinx.
-[/docs/_build/html/index.html](/docs/_build/html/index.html)
+[/docs/V1/html/index.html](/docs/V1/html/index.html)
 
 
 &nbsp;

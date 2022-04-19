@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>servier.pipelines.training &#8212; servier 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for servier.pipelines.training</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DATA_TRAIN_PATTERN</span><span class="p">,</span>
+    <span class="n">DATA_VALID_PATTERN</span><span class="p">,</span>
+    <span class="n">MODEL_DATA_PATH_NAME</span><span class="p">,</span>
+    <span class="n">TRAINING_HISTORY_FILE_NAME</span><span class="p">,</span>
+    <span class="n">MAX_EPOCHS</span><span class="p">,</span>
+    <span class="n">LEARNING_RATE</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..nodes.data_ingestion</span> <span class="kn">import</span> <span class="n">ingest_data</span>
+<span class="kn">from</span> <span class="nn">..nodes.data_validation</span> <span class="kn">import</span> <span class="n">validate_dataframe</span>
+<span class="kn">from</span> <span class="nn">..nodes.featurizer</span> <span class="kn">import</span> <span class="n">get_mpnn_dataset</span>
+<span class="kn">from</span> <span class="nn">..nodes.modeling</span> <span class="kn">import</span> <span class="n">get_imbalance_params</span><span class="p">,</span> <span class="n">MPNNModel</span>
+<span class="kn">from</span> <span class="nn">tensorflow</span> <span class="kn">import</span> <span class="n">keras</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+
+<span class="n">METRICS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">BinaryAccuracy</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;accuracy&quot;</span><span class="p">),</span>
+    <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Precision</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;precision&quot;</span><span class="p">),</span>
+    <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Recall</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;recall&quot;</span><span class="p">),</span>
+    <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">AUC</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;AUC&quot;</span><span class="p">),</span>
+    <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">AUC</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;PRC&quot;</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="s2">&quot;PR&quot;</span><span class="p">),</span>  <span class="c1"># precision-recall curve</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="train"><a class="viewcode-back" href="../../../servier.pipelines.html#servier.pipelines.training.train">[docs]</a><span class="k">def</span> <span class="nf">train</span><span class="p">(</span>
+    <span class="n">experiment</span><span class="p">,</span>
+    <span class="n">input_path</span><span class="p">,</span>
+    <span class="n">valid_path</span><span class="p">,</span>
+    <span class="n">model_path</span><span class="p">,</span>
+    <span class="n">reporting_path</span><span class="p">,</span>
+    <span class="n">learning_rate</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="p">,</span>
+    <span class="n">handle_imbalance</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create and train the model and save the artifacts and the results</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;learning rate: </span><span class="si">{</span><span class="n">learning_rate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epochs: </span><span class="si">{</span><span class="n">epochs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">input_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span>
+
+    <span class="n">input_path</span> <span class="o">=</span> <span class="n">input_path</span> <span class="o">/</span> <span class="n">experiment</span>
+    <span class="n">input_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input path: </span><span class="si">{</span><span class="n">input_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">df_train</span> <span class="o">=</span> <span class="n">ingest_data</span><span class="p">(</span>
+        <span class="n">input_path</span><span class="p">,</span> <span class="n">files_pattern</span><span class="o">=</span><span class="n">DATA_TRAIN_PATTERN</span><span class="p">,</span> <span class="n">msg_type</span><span class="o">=</span><span class="s2">&quot;Training Data&quot;</span>
+    <span class="p">)</span>
+    <span class="n">df_train</span> <span class="o">=</span> <span class="n">validate_dataframe</span><span class="p">(</span><span class="n">df_train</span><span class="p">,</span> <span class="n">predict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">msg_type</span><span class="o">=</span><span class="s2">&quot;Training Data&quot;</span><span class="p">)</span>
+
+    <span class="n">train_dataset</span><span class="p">,</span> <span class="n">atom_dim</span><span class="p">,</span> <span class="n">bond_dim</span> <span class="o">=</span> <span class="n">get_mpnn_dataset</span><span class="p">(</span><span class="n">df_train</span><span class="p">,</span> <span class="n">return_dims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">valid_dataset</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">valid_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">valid_path</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">valid_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">valid_path</span><span class="p">)</span>
+        <span class="n">valid_path</span> <span class="o">=</span> <span class="n">valid_path</span> <span class="o">/</span> <span class="n">experiment</span>
+        <span class="n">valid_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">df_valid</span> <span class="o">=</span> <span class="n">ingest_data</span><span class="p">(</span>
+            <span class="n">valid_path</span><span class="p">,</span> <span class="n">files_pattern</span><span class="o">=</span><span class="n">DATA_VALID_PATTERN</span><span class="p">,</span> <span class="n">msg_type</span><span class="o">=</span><span class="s2">&quot;Validation Data&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df_valid</span> <span class="o">=</span> <span class="n">validate_dataframe</span><span class="p">(</span>
+            <span class="n">df_valid</span><span class="p">,</span> <span class="n">predict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">msg_type</span><span class="o">=</span><span class="s2">&quot;Validation Data&quot;</span>
+        <span class="p">)</span>
+        <span class="n">valid_dataset</span> <span class="o">=</span> <span class="n">get_mpnn_dataset</span><span class="p">(</span>
+            <span class="n">df_valid</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">initial_bias</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">class_weight</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">handle_imbalance</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">initial_bias</span><span class="p">,</span> <span class="n">class_weight</span> <span class="o">=</span> <span class="n">get_imbalance_params</span><span class="p">(</span><span class="n">df_train</span><span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">MPNNModel</span><span class="p">(</span>
+        <span class="n">atom_dim</span><span class="o">=</span><span class="n">atom_dim</span><span class="p">,</span>
+        <span class="n">bond_dim</span><span class="o">=</span><span class="n">bond_dim</span><span class="p">,</span>
+        <span class="n">output_bias</span><span class="o">=</span><span class="n">initial_bias</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">BinaryCrossentropy</span><span class="p">(),</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">),</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">METRICS</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># When performance doesn&#39;t improve, make learning rate smaller</span>
+    <span class="n">reduce_lr</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ReduceLROnPlateau</span><span class="p">(</span>
+        <span class="n">monitor</span><span class="o">=</span><span class="s2">&quot;val_loss&quot;</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">min_lr</span><span class="o">=</span><span class="mf">1e-7</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Early stopping mechanism after 5 epochs with no improvements</span>
+    <span class="n">early_stopping</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span>
+        <span class="n">monitor</span><span class="o">=</span><span class="s2">&quot;val_loss&quot;</span><span class="p">,</span>
+        <span class="n">patience</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+            <span class="n">train_dataset</span><span class="p">,</span>
+            <span class="n">validation_data</span><span class="o">=</span><span class="n">valid_dataset</span><span class="p">,</span>
+            <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">reduce_lr</span><span class="p">,</span> <span class="n">early_stopping</span><span class="p">],</span>
+            <span class="n">class_weight</span><span class="o">=</span><span class="n">class_weight</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">model_path</span> <span class="o">=</span> <span class="n">model_path</span> <span class="o">/</span> <span class="n">experiment</span>
+    <span class="n">model_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">model_path</span> <span class="o">=</span> <span class="n">model_path</span> <span class="o">/</span> <span class="n">MODEL_DATA_PATH_NAME</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+
+    <span class="n">reporting_path</span> <span class="o">=</span> <span class="n">reporting_path</span> <span class="o">/</span> <span class="n">experiment</span>
+    <span class="n">reporting_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">reporting_path</span> <span class="o">/</span> <span class="n">TRAINING_HISTORY_FILE_NAME</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">),</span> <span class="n">outfile</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">history</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">servier</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">servier</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Salah Chadli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
