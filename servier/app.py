@@ -14,6 +14,10 @@ from .config import (
 def host(debug=False):
     app = Flask(__name__)
 
+    @app.route('/', methods=["GET"])
+    def hello_world():
+        return "Hello World!", 200
+
     @app.route('/predict', methods=["GET"])
     def app_predict():
         smiles = request.args.get("smiles", "")
