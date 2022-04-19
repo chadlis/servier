@@ -112,6 +112,7 @@ How to Further improve the code?
 - Configure correctly the make file to make it easy to install the env/production environment and use the different commands
 - Implement a proper experiment tracking mechanism (e.g. using MLFlow) + data and model versionning with more logs
 - Better documentation
+- Because of the M1 issues with Docker and Tensorflow, I had to change the development environment, so multiple commit were for debugging only. Which is not optimal.
 
 &nbsp;
 
