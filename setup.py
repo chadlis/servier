@@ -2,22 +2,38 @@
 
 """The setup script."""
 
+from pkg_resources import require
 from setuptools import setup, find_packages
+import os
 
-with open('README.rst') as readme_file:
+ENV_DOCKERMODE = os.getenv("DOCKERMODE")
+
+
+with open('README.md') as readme_file:
     readme = readme_file.read()
 
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [ ]
+requirements = ['pandas>=1.4.2',
+'pandera==0.10.1',
+'scikit-learn==1.0.2',
+'rdkit-pypi==2022.3.1',
+'matplotlib==3.5.1',
+'flask==2.1.1',
+'waitress==2.1.1',
+'redis==4.2.2',
+'flask_caching==1.10.1',
+]
+if ENV_DOCKERMODE is None:
+   requirements.append('tensorflow==2.7.0') 
 
 test_requirements = ['pytest>=3', ]
 
 setup(
     author="Salah Chadli",
     author_email='salah.chadli@gmail.com',
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
