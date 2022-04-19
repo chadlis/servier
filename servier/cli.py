@@ -66,6 +66,7 @@ def main():
             experiment = "".join(
                 random.choices(string.ascii_uppercase + string.digits, k=7)
             )
+            print(f"New Experiment: {experiment}")
         print("\nSplitting data..")
         if input_path is None:
             input_path = RAW_DATA_PATH
@@ -122,7 +123,7 @@ def main():
         )
     if "predict" in mode:
         print("\nPrediction..")
-            if experiment is None:
+        if experiment is None:
             raise Exception('No experiment was given!')
         if input_path is None:
             input_path = PRIMARY_DATA_PATH
