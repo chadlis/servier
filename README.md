@@ -36,12 +36,18 @@ When the message passing procedure ends, the k-step-aggregated node states are t
 `Classification` <br />
 In addition to the message passing and readout, a two-layer classification network will be implemented to make predictions.
 
+As the data is unbalanced, the bias initialization (for the last layer) the class_weights (for the cost function) were modified to take this into account to help the convergence.
+
+An early stopping and an automatic lr reduction on Plateau were added too.
+
 &nbsp;
 
 
 Evaluation
 --------
 The metric used to evaluate the model is the ROC-AUC. As no indication was given regarding the relative importance of the recall and the precision, when the endpoint is requested, a 0.5 threshold is applied on the output of the model.
+
+When the data is unbalanced, some argue that tracking PR-AUC is better as it reflects better the unbalance. As we will see, both metrics were improved by model 2.
 
 Example: If the capacity of verifying afterward that the molecule has indeed the predicted property is very limited, we may want to make the threshold higher to predict 1 only when the model is certain (higher precision but low recall)
 
