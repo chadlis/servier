@@ -19,6 +19,8 @@ requirements = ['pandas>=1.4.2',
 'pandera==0.10.1',
 'scikit-learn==1.0.2',
 'rdkit-pypi==2022.3.1',
+'matplotlib==3.5.1',
+'flask==2.1.1',
 ]
 if ENV_DOCKERMODE is None:
    requirements.append('tensorflow==2.7.0') 
