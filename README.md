@@ -164,7 +164,7 @@ The training history, the test_results and predictions will be available in  `da
 servier --deploy_only
 </pre>
 The model will deploy the endpoint in the port 8000. <br />
-
+Waitress was used as an WSGI and Redis for the caching mechanism.
 
 ### 6. Deploy the trained model with docker-compose
 
