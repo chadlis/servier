@@ -4,6 +4,7 @@ from ..config import COL_TARGET
 
 class EdgeNetwork(tf.keras.layers.Layer):
     def build(self, input_shape):
+        """Build the Network"""
         self.atom_dim = input_shape[0][-1]
         self.bond_dim = input_shape[1][-1]
         self.kernel = self.add_weight(
@@ -46,6 +47,7 @@ class MessagePassing(tf.keras.layers.Layer):
         self.steps = steps
 
     def build(self, input_shape):
+        """Build the message passing mechanism (Edge Network + GRU)"""
         self.atom_dim = input_shape[0][-1]
         self.message_step = EdgeNetwork()
         self.pad_length = max(0, self.units - self.atom_dim)
@@ -73,6 +75,9 @@ class MessagePassing(tf.keras.layers.Layer):
         return atom_features_updated
 
 class PartitionPadding(tf.keras.layers.Layer):
+    """
+    partitions the k-step-aggregated node states into subgraphs
+    """
     def __init__(self, batch_size, **kwargs):
         super().__init__(**kwargs)
         self.batch_size = batch_size
@@ -151,9 +156,9 @@ def MPNNModel(
         num_attention_heads, message_units, dense_units, batch_size
     )([x, molecule_indicator])
 
-    #x = layers.Dense(dense_units, activation="relu")(x)
-    #x = layers.BatchNormalization()(x)
-    #x = layers.Dropout(0.2)(x)
+    x = tf.keras.layers.Dense(dense_units, activation="relu")(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.Dropout(0.2)(x)
     x = tf.keras.layers.Dense(dense_units, activation="relu")(x)
     x = tf.keras.layers.Dense(1, activation="sigmoid", bias_initializer=output_bias)(x)
 

@@ -15,6 +15,15 @@ import warnings
 import json
 from pathlib import Path
 
+
+METRICS = [
+    keras.metrics.BinaryAccuracy(name='accuracy'),
+    keras.metrics.Precision(name='precision'),
+    keras.metrics.Recall(name='recall'),
+    keras.metrics.AUC(name='AUC'),
+    keras.metrics.AUC(name='PRC', curve='PR'), # precision-recall curve
+]
+
 def train(experiment, input_path, valid_path, model_path, reporting_path, learning_rate, epochs, handle_imbalance=True,):
     """
     Create and train the model and save the artifacts and the results
@@ -67,12 +76,15 @@ def train(experiment, input_path, valid_path, model_path, reporting_path, learni
     model.compile(
         loss=keras.losses.BinaryCrossentropy(),
         optimizer=keras.optimizers.Adam(learning_rate=learning_rate),
-        metrics=[keras.metrics.AUC(name="AUC")],
+        metrics=[METRICS],
     )
 
+    # When performance doesn't improve, make learning rate smaller
     reduce_lr = keras.callbacks.ReduceLROnPlateau(
         monitor="val_loss", factor=0.1, patience=5, min_lr=1e-7
     )
+
+    # Early stopping mechanism after 5 epochs with no improvements
     early_stopping = keras.callbacks.EarlyStopping(
         monitor="val_loss",
         patience=5,

@@ -16,6 +16,7 @@ class Featurizer:
             self.dim += len(s)
 
     def encode(self, inputs):
+        """get the target features from the input (atom or band features)"""
         output = zeros((self.dim,))
         for name_feature, feature_mapping in self.features_mapping.items():
             feature = getattr(self, name_feature)(inputs)
