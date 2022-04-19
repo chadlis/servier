@@ -9,6 +9,7 @@ from tensorflow import keras
 from .config import (
     MODEL_DATA_PATH,
     MODEL_DATA_PATH_NAME,
+    PREDICTION_THRESHOLD,
 )
 
 from flask_caching import Cache
@@ -52,7 +53,7 @@ def host(debug=False):
         dataset = get_mpnn_dataset([smiles])
         model = keras.models.load_model(model_path)
         model_output = round(model.predict(dataset)[0][0], 2)
-        prediction = int(model_output > 0.5)
+        prediction = int(model_output > PREDICTION_THRESHOLD)
         result = {
             "model": str(model_path),
             "smiles": smiles,

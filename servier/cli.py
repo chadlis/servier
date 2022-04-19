@@ -7,7 +7,6 @@ from .config import (
     RAW_DATA_PATH,
     PRIMARY_DATA_PATH,
     MODEL_DATA_PATH,
-    MODEL_DATA_PATH_NAME,
     REPORTING_DATA_PATH,
     MAX_EPOCHS,
     LEARNING_RATE,
@@ -23,6 +22,9 @@ import random
 
 
 def get_last_experiment(directory):
+    """
+    get the last experiment from the given directory
+    """
     try:
         experiment = max([d for d in Path(directory).glob('*/') if d.is_dir()], key=os.path.getmtime).name
         print("No experiment was given! Get the last one..")
@@ -80,12 +82,13 @@ def main():
         return 1
     print(f"Experiment: {experiment}")
     if ("split" in mode):
+        print("\nSplitting data..")
         if experiment is None:
+            # generate a random experiment name if none is given
             experiment = "".join(
                 random.choices(string.ascii_uppercase + string.digits, k=7)
             )
             print(f"New Experiment: {experiment}")
-        print("\nSplitting data..")
         if input_path is None:
             input_path = RAW_DATA_PATH
         if output_path is None:
@@ -100,7 +103,8 @@ def main():
         valid_path = output_path
     if "train" in mode:
         print("\nTraining..")
-        experiment = get_last_experiment(directory=PRIMARY_DATA_PATH)
+        if experiment is None:
+            experiment = get_last_experiment(directory=PRIMARY_DATA_PATH)
         if input_path is None:
             input_path = PRIMARY_DATA_PATH
             if valid_path is None:

@@ -11,6 +11,10 @@ import json
 from pathlib import Path
 
 def evaluate(experiment, input_path, model_path, reporting_path,):
+    """
+    Evaluate the model in model_path using the data in data_path
+    or the testing data in 01_primary for the given experiment or the most recent experiment
+    """
     if type(input_path) == str:
         input_path = Path(input_path)
     input_path = input_path/experiment
@@ -25,8 +29,9 @@ def evaluate(experiment, input_path, model_path, reporting_path,):
     df_data = validate_dataframe(df_data, predict=False, msg_type="Testing Data")
     dataset = get_mpnn_dataset(df_data)
     model = keras.models.load_model(model_path)
-    loss, auc = model.evaluate(dataset)
-    results = {"loss": loss, "auc": auc,}
+    loss, accuracy, precision, recall, auc, prc = model.evaluate(dataset)
+    results = {"loss": loss, "auc": auc, "prc": prc,
+    "accuracy": accuracy, "precision": precision, "recall": recall, }
     reporting_path = reporting_path/experiment
     reporting_path.mkdir(parents=True, exist_ok=True)
     reporting_path = reporting_path/TEST_RESULTS_FILE_NAME
