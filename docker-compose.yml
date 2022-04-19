@@ -1,0 +1,66 @@
+version: "3.9"
+services:
+  deploy:
+    image: servier_smiles_prediction
+    platform: linux/amd64
+    volumes:
+      - ./data:/app/data
+    command: ["--deploy_only"]
+    ports:
+      - "8000:5000"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 300m
+
+  train:
+    image: servier_smiles_prediction
+    platform: linux/amd64
+    volumes:
+      - ./data:/app/data
+    command: ["--mode", "split;train;evaluate;test"]
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8g
+
+  evaluate:
+    image: servier_smiles_prediction
+    platform: linux/amd64
+    volumes:
+      - ./data:/app/data
+    command: ["--mode", "evaluate"]
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 300m
+
+  predict:
+    image: servier_smiles_prediction
+    platform: linux/amd64
+    volumes:
+      - ./data:/app/data
+    command: ["--mode", "predict"]
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 300m
+
+  all:
+    build: .
+    image: servier_smiles_prediction
+    platform: linux/amd64
+    volumes:
+      - ./data:/app/data
+    command: ["--deploy"]
+    ports:
+      - "8000:5000"
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8g

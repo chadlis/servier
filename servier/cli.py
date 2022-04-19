@@ -1,7 +1,8 @@
 """Console script for servier."""
 import argparse
 import sys
-
+import os
+from pathlib import Path
 from .config import (
     RAW_DATA_PATH,
     PRIMARY_DATA_PATH,
@@ -21,13 +22,23 @@ import string
 import random
 
 
+def get_last_experiment(directory):
+    try:
+        experiment = max([d for d in Path(directory).glob('*/') if d.is_dir()], key=os.path.getmtime).name
+        print("No experiment was given! Get the last one..")
+        print(f"Experiment: {experiment}")
+        return experiment
+    except ValueError as E:
+        print("No previous output available and no experience was given!")
+        raise(E)
+
 def main():
     """Console script for servier."""
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--mode",
-        default="split;train;evaluate;predict;host",
+        default="split;train;evaluate;predict",
         type=str,
         # choices=["split", "train", "evaluate", "predict",],
         help="split data, train, evaluate or predict (default: %(default)s)",
@@ -46,6 +57,8 @@ def main():
     parser.add_argument("--experiment", type=str, help="Experiment Name")
     parser.add_argument("--lr", type=float, help="Learning Rate for training")
     parser.add_argument("--epochs", type=int, help="Epochs training")
+    parser.add_argument("--deploy", action="store_true", help="Host the trained model or the last created model")
+    parser.add_argument("--deploy_only", action="store_true", help="Only deploy the already trained model")
 
     args = parser.parse_args()
     mode = args.mode
@@ -58,10 +71,15 @@ def main():
     experiment = args.experiment
     train_lr = args.lr
     train_epochs = args.epochs
+    deploy = args.deploy
+    deploy_only = args.deploy_only
 
-
+    if deploy_only:
+        print("\Deploying app..")
+        host()
+        return 1
     print(f"Experiment: {experiment}")
-    if "split" in mode:
+    if ("split" in mode):
         if experiment is None:
             experiment = "".join(
                 random.choices(string.ascii_uppercase + string.digits, k=7)
@@ -82,8 +100,7 @@ def main():
         valid_path = output_path
     if "train" in mode:
         print("\nTraining..")
-        if experiment is None:
-            raise Exception('No experiment was given!')
+        experiment = get_last_experiment(directory=PRIMARY_DATA_PATH)
         if input_path is None:
             input_path = PRIMARY_DATA_PATH
             if valid_path is None:
@@ -108,7 +125,7 @@ def main():
     if "evaluate" in mode:
         print("\nEvaluation..")
         if experiment is None:
-            raise Exception('No experiment was given!')
+            experiment = get_last_experiment(directory=MODEL_DATA_PATH)
         if input_path is None:
             input_path = PRIMARY_DATA_PATH
         if model_path is None:
@@ -124,7 +141,7 @@ def main():
     if "predict" in mode:
         print("\nPrediction..")
         if experiment is None:
-            raise Exception('No experiment was given!')
+            experiment = get_last_experiment(directory=MODEL_DATA_PATH)
         if input_path is None:
             input_path = PRIMARY_DATA_PATH
         if model_path is None:
@@ -137,9 +154,11 @@ def main():
             reporting_path,
             data_path=input_path,
         )
-    if "host" in mode:
-        print("\nHosting app..")
+    if deploy:
+        print("\nDeploying app..")
         host()
+
+    return 1
 
 
 if __name__ == "__main__":
