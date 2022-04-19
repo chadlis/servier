@@ -1,0 +1,265 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>servier.nodes.data &#8212; servier 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for servier.nodes.data</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">COL_SMILES</span><span class="p">,</span>
+    <span class="n">COL_TARGET</span><span class="p">,</span>
+    <span class="n">DATA_SCHEMA</span><span class="p">,</span>
+    <span class="n">RANDOM_STATE</span><span class="p">,</span>
+    <span class="n">DATA_TRAIN_FILENAME</span><span class="p">,</span>
+    <span class="n">DATA_VALID_FILENAME</span><span class="p">,</span>
+    <span class="n">DATA_TEST_FILENAME</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">DATA_SCHEMA</span><span class="p">,</span> <span class="n">DATA_SCHEMA_PREDICTION</span>
+
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">read_csv</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="validate_dataframe"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.data.validate_dataframe">[docs]</a><span class="k">def</span> <span class="nf">validate_dataframe</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">predict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_balance</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate dataframe against the defined schemas</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">predict</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">DATA_SCHEMA_PREDICTION</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+            <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">COL_SMILES</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Data Validation | Finished!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">DATA_SCHEMA</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">COL_SMILES</span><span class="p">,</span> <span class="n">COL_TARGET</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">check_balance</span><span class="p">:</span>
+        <span class="n">balance_proportions</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">COL_TARGET</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot; Data Validation | Dataset imbalance | Proportions: </span><span class="si">{</span><span class="n">balance_proportions</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">max</span><span class="p">(</span>
+                <span class="n">balance_proportions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">balance_proportions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">balance_proportions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">balance_proportions</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="o">&gt;</span> <span class="mi">2</span>
+        <span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Data Validation | Dataset imbalance | Severe imbalance!&quot;</span><span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Data Validation | Finished!&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="split_data"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.data.split_data">[docs]</a><span class="k">def</span> <span class="nf">split_data</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">,</span>
+    <span class="n">train_size</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="n">test_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">col_target</span><span class="o">=</span><span class="n">COL_TARGET</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="n">RANDOM_STATE</span><span class="p">,</span>
+    <span class="n">filename_train</span><span class="o">=</span><span class="n">DATA_TRAIN_FILENAME</span><span class="p">,</span>
+    <span class="n">filename_test</span><span class="o">=</span><span class="n">DATA_TEST_FILENAME</span><span class="p">,</span>
+    <span class="n">filename_valid</span><span class="o">=</span><span class="n">DATA_VALID_FILENAME</span><span class="p">,</span>
+<span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split data to train, (validation) and test sets</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">validate_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">test_only</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Data Splitting | Train: </span><span class="si">{</span><span class="n">train_size</span><span class="si">}</span><span class="s2">, Test: </span><span class="si">{</span><span class="mi">1</span><span class="o">-</span><span class="n">train_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">df_train</span><span class="p">,</span> <span class="n">df_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span>
+            <span class="n">test_size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">train_size</span><span class="p">),</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="n">RANDOM_STATE</span><span class="p">,</span>
+            <span class="n">stratify</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">COL_TARGET</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">df_train</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">output_path</span> <span class="o">/</span> <span class="n">filename_train</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df_test</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">output_path</span> <span class="o">/</span> <span class="n">filename_test</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Data Splitting | Finished!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">filename_train</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">filename_test</span><span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot; Data Splitting | Train: </span><span class="si">{</span><span class="n">train_size</span><span class="si">}</span><span class="s2">, Valid: </span><span class="si">{</span><span class="nb">round</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">train_size</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">, Test: </span><span class="si">{</span><span class="nb">round</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">train_size</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">df_train</span><span class="p">,</span> <span class="n">df_not_train</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">test_size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">train_size</span><span class="p">),</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="n">RANDOM_STATE</span><span class="p">,</span>
+        <span class="n">stratify</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">COL_TARGET</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">df_valid</span><span class="p">,</span> <span class="n">df_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+        <span class="n">df_not_train</span><span class="p">,</span>
+        <span class="n">test_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="n">RANDOM_STATE</span><span class="p">,</span>
+        <span class="n">stratify</span><span class="o">=</span><span class="n">df_not_train</span><span class="p">[</span><span class="n">COL_TARGET</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">df_train</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">output_path</span> <span class="o">/</span> <span class="n">filename_train</span><span class="p">,</span>
+        <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df_valid</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">output_path</span> <span class="o">/</span> <span class="n">filename_valid</span><span class="p">,</span>
+        <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df_test</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">output_path</span> <span class="o">/</span> <span class="n">filename_test</span><span class="p">,</span>
+        <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Data Splitting | Finished!&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">filename_train</span><span class="p">),</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">filename_valid</span><span class="p">),</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">filename_test</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="prepare_batch"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.data.prepare_batch">[docs]</a><span class="k">def</span> <span class="nf">prepare_batch</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Merges (sub)graphs of batch into a single global (disconnected) graph&quot;&quot;&quot;</span>
+
+    <span class="n">atom_features</span><span class="p">,</span> <span class="n">bond_features</span><span class="p">,</span> <span class="n">pair_indices</span> <span class="o">=</span> <span class="n">x_batch</span>
+
+    <span class="c1"># Obtain number of atoms and bonds for each graph (molecule)</span>
+    <span class="n">num_atoms</span> <span class="o">=</span> <span class="n">atom_features</span><span class="o">.</span><span class="n">row_lengths</span><span class="p">()</span>
+    <span class="n">num_bonds</span> <span class="o">=</span> <span class="n">bond_features</span><span class="o">.</span><span class="n">row_lengths</span><span class="p">()</span>
+
+    <span class="c1"># Obtain partition indices (molecule_indicator), which will be used to</span>
+    <span class="c1"># gather (sub)graphs from global graph in model later on</span>
+    <span class="n">molecule_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">num_atoms</span><span class="p">))</span>
+    <span class="n">molecule_indicator</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">molecule_indices</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">)</span>
+
+    <span class="c1"># Merge (sub)graphs into a global (disconnected) graph. Adding &#39;increment&#39; to</span>
+    <span class="c1"># &#39;pair_indices&#39; (and merging ragged tensors) actualizes the global graph</span>
+    <span class="n">gather_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">molecule_indices</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_bonds</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">increment</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">num_atoms</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">increment</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">increment</span><span class="p">,</span> <span class="n">gather_indices</span><span class="p">),</span> <span class="p">[(</span><span class="n">num_bonds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)])</span>
+    <span class="n">pair_indices</span> <span class="o">=</span> <span class="n">pair_indices</span><span class="o">.</span><span class="n">merge_dims</span><span class="p">(</span><span class="n">outer_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inner_axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">()</span>
+    <span class="n">pair_indices</span> <span class="o">=</span> <span class="n">pair_indices</span> <span class="o">+</span> <span class="n">increment</span><span class="p">[:,</span> <span class="n">tf</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">atom_features</span> <span class="o">=</span> <span class="n">atom_features</span><span class="o">.</span><span class="n">merge_dims</span><span class="p">(</span><span class="n">outer_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inner_axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">()</span>
+    <span class="n">bond_features</span> <span class="o">=</span> <span class="n">bond_features</span><span class="o">.</span><span class="n">merge_dims</span><span class="p">(</span><span class="n">outer_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inner_axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">atom_features</span><span class="p">,</span> <span class="n">bond_features</span><span class="p">,</span> <span class="n">pair_indices</span><span class="p">,</span> <span class="n">molecule_indicator</span><span class="p">),</span> <span class="n">y_batch</span></div>
+
+
+<div class="viewcode-block" id="MPNNDataset"><a class="viewcode-back" href="../../../servier.nodes.html#servier.nodes.data.MPNNDataset">[docs]</a><span class="k">def</span> <span class="nf">MPNNDataset</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="p">(</span><span class="n">y</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">prepare_batch</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">servier</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">servier</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Salah Chadli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

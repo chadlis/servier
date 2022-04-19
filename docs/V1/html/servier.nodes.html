@@ -1,0 +1,525 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>servier.nodes package &#8212; servier 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="servier.pipelines package" href="servier.pipelines.html" />
+    <link rel="prev" title="servier package" href="servier.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="servier-nodes-package">
+<h1>servier.nodes package<a class="headerlink" href="#servier-nodes-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-servier.nodes.data">
+<span id="servier-nodes-data-module"></span><h2>servier.nodes.data module<a class="headerlink" href="#module-servier.nodes.data" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="servier.nodes.data.MPNNDataset">
+<span class="sig-prename descclassname"><span class="pre">servier.nodes.data.</span></span><span class="sig-name descname"><span class="pre">MPNNDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/data.html#MPNNDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.data.MPNNDataset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="servier.nodes.data.prepare_batch">
+<span class="sig-prename descclassname"><span class="pre">servier.nodes.data.</span></span><span class="sig-name descname"><span class="pre">prepare_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/data.html#prepare_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.data.prepare_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merges (sub)graphs of batch into a single global (disconnected) graph</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="servier.nodes.data.split_data">
+<span class="sig-prename descclassname"><span class="pre">servier.nodes.data.</span></span><span class="sig-name descname"><span class="pre">split_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'data_train.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'data_test.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'data_valid.csv'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/data.html#split_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.data.split_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split data to train, (validation) and test sets</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="servier.nodes.data.validate_dataframe">
+<span class="sig-prename descclassname"><span class="pre">servier.nodes.data.</span></span><span class="sig-name descname"><span class="pre">validate_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_balance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/data.html#validate_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.data.validate_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate dataframe against the defined schemas</p>
+</dd></dl>
+
+</section>
+<section id="module-servier.nodes.data_ingestion">
+<span id="servier-nodes-data-ingestion-module"></span><h2>servier.nodes.data_ingestion module<a class="headerlink" href="#module-servier.nodes.data_ingestion" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="servier.nodes.data_ingestion.ingest_data">
+<span class="sig-prename descclassname"><span class="pre">servier.nodes.data_ingestion.</span></span><span class="sig-name descname"><span class="pre">ingest_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files_pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'*.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/data_ingestion.html#ingest_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.data_ingestion.ingest_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-servier.nodes.data_validation">
+<span id="servier-nodes-data-validation-module"></span><h2>servier.nodes.data_validation module<a class="headerlink" href="#module-servier.nodes.data_validation" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="servier.nodes.data_validation.validate_dataframe">
+<span class="sig-prename descclassname"><span class="pre">servier.nodes.data_validation.</span></span><span class="sig-name descname"><span class="pre">validate_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_balance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/data_validation.html#validate_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.data_validation.validate_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-servier.nodes.featurizer">
+<span id="servier-nodes-featurizer-module"></span><h2>servier.nodes.featurizer module<a class="headerlink" href="#module-servier.nodes.featurizer" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="servier.nodes.featurizer.AtomFeaturizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">servier.nodes.featurizer.</span></span><span class="sig-name descname"><span class="pre">AtomFeaturizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">allowable_sets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/featurizer.html#AtomFeaturizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.featurizer.AtomFeaturizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#servier.nodes.featurizer.Featurizer" title="servier.nodes.featurizer.Featurizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">servier.nodes.featurizer.Featurizer</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.featurizer.AtomFeaturizer.hybridization">
+<span class="sig-name descname"><span class="pre">hybridization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/featurizer.html#AtomFeaturizer.hybridization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.featurizer.AtomFeaturizer.hybridization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.featurizer.AtomFeaturizer.n_hydrogens">
+<span class="sig-name descname"><span class="pre">n_hydrogens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/featurizer.html#AtomFeaturizer.n_hydrogens"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.featurizer.AtomFeaturizer.n_hydrogens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.featurizer.AtomFeaturizer.n_valence">
+<span class="sig-name descname"><span class="pre">n_valence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/featurizer.html#AtomFeaturizer.n_valence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.featurizer.AtomFeaturizer.n_valence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.featurizer.AtomFeaturizer.symbol">
+<span class="sig-name descname"><span class="pre">symbol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/featurizer.html#AtomFeaturizer.symbol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.featurizer.AtomFeaturizer.symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="servier.nodes.featurizer.BondFeaturizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">servier.nodes.featurizer.</span></span><span class="sig-name descname"><span class="pre">BondFeaturizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">allowable_sets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/featurizer.html#BondFeaturizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.featurizer.BondFeaturizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#servier.nodes.featurizer.Featurizer" title="servier.nodes.featurizer.Featurizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">servier.nodes.featurizer.Featurizer</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.featurizer.BondFeaturizer.bond_type">
+<span class="sig-name descname"><span class="pre">bond_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bond</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/featurizer.html#BondFeaturizer.bond_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.featurizer.BondFeaturizer.bond_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.featurizer.BondFeaturizer.conjugated">
+<span class="sig-name descname"><span class="pre">conjugated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bond</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/featurizer.html#BondFeaturizer.conjugated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.featurizer.BondFeaturizer.conjugated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.featurizer.BondFeaturizer.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bond</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/featurizer.html#BondFeaturizer.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.featurizer.BondFeaturizer.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the target features from the input (atom or band features)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="servier.nodes.featurizer.Featurizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">servier.nodes.featurizer.</span></span><span class="sig-name descname"><span class="pre">Featurizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">allowable_sets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/featurizer.html#Featurizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.featurizer.Featurizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.featurizer.Featurizer.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/featurizer.html#Featurizer.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.featurizer.Featurizer.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the target features from the input (atom or band features)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="servier.nodes.featurizer.get_mpnn_dataset">
+<span class="sig-prename descclassname"><span class="pre">servier.nodes.featurizer.</span></span><span class="sig-name descname"><span class="pre">get_mpnn_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_featurizer=&lt;servier.nodes.featurizer.AtomFeaturizer</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_featurizer=&lt;servier.nodes.featurizer.BondFeaturizer</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_smiles='smiles'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_target='P1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_dims=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/featurizer.html#get_mpnn_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.featurizer.get_mpnn_dataset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-servier.nodes.graphizer">
+<span id="servier-nodes-graphizer-module"></span><h2>servier.nodes.graphizer module<a class="headerlink" href="#module-servier.nodes.graphizer" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="servier.nodes.graphizer.graph_from_molecule">
+<span class="sig-prename descclassname"><span class="pre">servier.nodes.graphizer.</span></span><span class="sig-name descname"><span class="pre">graph_from_molecule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_featurizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_featurizer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/graphizer.html#graph_from_molecule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.graphizer.graph_from_molecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>takes as input a molecule object and returns a graph, represented as a three-tuple
+(atom_features, bond_features, pair_indices).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="servier.nodes.graphizer.graphs_from_smiles">
+<span class="sig-prename descclassname"><span class="pre">servier.nodes.graphizer.</span></span><span class="sig-name descname"><span class="pre">graphs_from_smiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smiles_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_featurizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_featurizer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/graphizer.html#graphs_from_smiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.graphizer.graphs_from_smiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies molecule_from_smiles() and subsequently graph_from_molecule()
+on all SMILES of the training, validation and test datasets.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="servier.nodes.graphizer.molecule_from_smiles">
+<span class="sig-prename descclassname"><span class="pre">servier.nodes.graphizer.</span></span><span class="sig-name descname"><span class="pre">molecule_from_smiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smiles</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/graphizer.html#molecule_from_smiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.graphizer.molecule_from_smiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>takes as input a SMILES and returns a molecule object.</p>
+</dd></dl>
+
+</section>
+<section id="module-servier.nodes.modeling">
+<span id="servier-nodes-modeling-module"></span><h2>servier.nodes.modeling module<a class="headerlink" href="#module-servier.nodes.modeling" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="servier.nodes.modeling.EdgeNetwork">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">servier.nodes.modeling.</span></span><span class="sig-name descname"><span class="pre">EdgeNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/modeling.html#EdgeNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.modeling.EdgeNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">keras.engine.base_layer.Layer</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.modeling.EdgeNetwork.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/modeling.html#EdgeNetwork.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.modeling.EdgeNetwork.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the Network</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.modeling.EdgeNetwork.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/modeling.html#EdgeNetwork.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.modeling.EdgeNetwork.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is where the layer’s logic lives.</p>
+<p>Note here that <cite>call()</cite> method in <cite>tf.keras</cite> is little bit different
+from <cite>keras</cite> API. In <cite>keras</cite> API, you can pass support masking for
+layers as additional arguments. Whereas <cite>tf.keras</cite> has <cite>compute_mask()</cite>
+method to support masking.</p>
+<dl>
+<dt>Args:</dt><dd><dl>
+<dt>inputs: Input tensor, or dict/list/tuple of input tensors.</dt><dd><p>The first positional <cite>inputs</cite> argument is subject to special rules:
+- <cite>inputs</cite> must be explicitly passed. A layer cannot have zero</p>
+<blockquote>
+<div><p>arguments, and <cite>inputs</cite> cannot be provided via the default value
+of a keyword argument.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>NumPy array or Python scalar values in <cite>inputs</cite> get cast as tensors.</p></li>
+<li><p>Keras mask metadata is only collected from <cite>inputs</cite>.</p></li>
+<li><p>Layers are built (<cite>build(input_shape)</cite> method)
+using shape info from <cite>inputs</cite> only.</p></li>
+<li><p><cite>input_spec</cite> compatibility is only checked against <cite>inputs</cite>.</p></li>
+<li><p>Mixed precision input casting is only applied to <cite>inputs</cite>.
+If a layer has tensor arguments in <cite>*args</cite> or <cite>**kwargs</cite>, their
+casting behavior in mixed precision should be handled manually.</p></li>
+<li><p>The SavedModel input specification is generated using <cite>inputs</cite> only.</p></li>
+<li><p>Integration with various ecosystem packages like TFMOT, TFLite,
+TF.js, etc is only supported for <cite>inputs</cite> and not for tensors in
+positional and keyword arguments.</p></li>
+</ul>
+</dd>
+<dt><a href="#id1"><span class="problematic" id="id2">*</span></a>args: Additional positional arguments. May contain tensors, although</dt><dd><p>this is not recommended, for the reasons above.</p>
+</dd>
+<dt><a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs: Additional keyword arguments. May contain tensors, although</dt><dd><p>this is not recommended, for the reasons above.
+The following optional keyword arguments are reserved:
+- <cite>training</cite>: Boolean scalar tensor of Python boolean indicating</p>
+<blockquote>
+<div><p>whether the <cite>call</cite> is meant for training or inference.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><cite>mask</cite>: Boolean input mask. If the layer’s <cite>call()</cite> method takes a
+<cite>mask</cite> argument, its default value will be set to the mask generated
+for <cite>inputs</cite> by the previous layer (if <cite>input</cite> did come from a layer
+that generated a corresponding mask, i.e. if it came from a Keras
+layer with masking support).</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>A tensor or list/tuple of tensors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="servier.nodes.modeling.MPNNModel">
+<span class="sig-prename descclassname"><span class="pre">servier.nodes.modeling.</span></span><span class="sig-name descname"><span class="pre">MPNNModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_attention_heads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dense_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/modeling.html#MPNNModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.modeling.MPNNModel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="servier.nodes.modeling.MessagePassing">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">servier.nodes.modeling.</span></span><span class="sig-name descname"><span class="pre">MessagePassing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/modeling.html#MessagePassing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.modeling.MessagePassing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">keras.engine.base_layer.Layer</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.modeling.MessagePassing.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/modeling.html#MessagePassing.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.modeling.MessagePassing.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the message passing mechanism (Edge Network + GRU)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.modeling.MessagePassing.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/modeling.html#MessagePassing.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.modeling.MessagePassing.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is where the layer’s logic lives.</p>
+<p>Note here that <cite>call()</cite> method in <cite>tf.keras</cite> is little bit different
+from <cite>keras</cite> API. In <cite>keras</cite> API, you can pass support masking for
+layers as additional arguments. Whereas <cite>tf.keras</cite> has <cite>compute_mask()</cite>
+method to support masking.</p>
+<dl>
+<dt>Args:</dt><dd><dl>
+<dt>inputs: Input tensor, or dict/list/tuple of input tensors.</dt><dd><p>The first positional <cite>inputs</cite> argument is subject to special rules:
+- <cite>inputs</cite> must be explicitly passed. A layer cannot have zero</p>
+<blockquote>
+<div><p>arguments, and <cite>inputs</cite> cannot be provided via the default value
+of a keyword argument.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>NumPy array or Python scalar values in <cite>inputs</cite> get cast as tensors.</p></li>
+<li><p>Keras mask metadata is only collected from <cite>inputs</cite>.</p></li>
+<li><p>Layers are built (<cite>build(input_shape)</cite> method)
+using shape info from <cite>inputs</cite> only.</p></li>
+<li><p><cite>input_spec</cite> compatibility is only checked against <cite>inputs</cite>.</p></li>
+<li><p>Mixed precision input casting is only applied to <cite>inputs</cite>.
+If a layer has tensor arguments in <cite>*args</cite> or <cite>**kwargs</cite>, their
+casting behavior in mixed precision should be handled manually.</p></li>
+<li><p>The SavedModel input specification is generated using <cite>inputs</cite> only.</p></li>
+<li><p>Integration with various ecosystem packages like TFMOT, TFLite,
+TF.js, etc is only supported for <cite>inputs</cite> and not for tensors in
+positional and keyword arguments.</p></li>
+</ul>
+</dd>
+<dt><a href="#id5"><span class="problematic" id="id6">*</span></a>args: Additional positional arguments. May contain tensors, although</dt><dd><p>this is not recommended, for the reasons above.</p>
+</dd>
+<dt><a href="#id7"><span class="problematic" id="id8">**</span></a>kwargs: Additional keyword arguments. May contain tensors, although</dt><dd><p>this is not recommended, for the reasons above.
+The following optional keyword arguments are reserved:
+- <cite>training</cite>: Boolean scalar tensor of Python boolean indicating</p>
+<blockquote>
+<div><p>whether the <cite>call</cite> is meant for training or inference.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><cite>mask</cite>: Boolean input mask. If the layer’s <cite>call()</cite> method takes a
+<cite>mask</cite> argument, its default value will be set to the mask generated
+for <cite>inputs</cite> by the previous layer (if <cite>input</cite> did come from a layer
+that generated a corresponding mask, i.e. if it came from a Keras
+layer with masking support).</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>A tensor or list/tuple of tensors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="servier.nodes.modeling.PartitionPadding">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">servier.nodes.modeling.</span></span><span class="sig-name descname"><span class="pre">PartitionPadding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/modeling.html#PartitionPadding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.modeling.PartitionPadding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">keras.engine.base_layer.Layer</span></code></p>
+<p>partitions the k-step-aggregated node states into subgraphs</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.modeling.PartitionPadding.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/modeling.html#PartitionPadding.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.modeling.PartitionPadding.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is where the layer’s logic lives.</p>
+<p>Note here that <cite>call()</cite> method in <cite>tf.keras</cite> is little bit different
+from <cite>keras</cite> API. In <cite>keras</cite> API, you can pass support masking for
+layers as additional arguments. Whereas <cite>tf.keras</cite> has <cite>compute_mask()</cite>
+method to support masking.</p>
+<dl>
+<dt>Args:</dt><dd><dl>
+<dt>inputs: Input tensor, or dict/list/tuple of input tensors.</dt><dd><p>The first positional <cite>inputs</cite> argument is subject to special rules:
+- <cite>inputs</cite> must be explicitly passed. A layer cannot have zero</p>
+<blockquote>
+<div><p>arguments, and <cite>inputs</cite> cannot be provided via the default value
+of a keyword argument.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>NumPy array or Python scalar values in <cite>inputs</cite> get cast as tensors.</p></li>
+<li><p>Keras mask metadata is only collected from <cite>inputs</cite>.</p></li>
+<li><p>Layers are built (<cite>build(input_shape)</cite> method)
+using shape info from <cite>inputs</cite> only.</p></li>
+<li><p><cite>input_spec</cite> compatibility is only checked against <cite>inputs</cite>.</p></li>
+<li><p>Mixed precision input casting is only applied to <cite>inputs</cite>.
+If a layer has tensor arguments in <cite>*args</cite> or <cite>**kwargs</cite>, their
+casting behavior in mixed precision should be handled manually.</p></li>
+<li><p>The SavedModel input specification is generated using <cite>inputs</cite> only.</p></li>
+<li><p>Integration with various ecosystem packages like TFMOT, TFLite,
+TF.js, etc is only supported for <cite>inputs</cite> and not for tensors in
+positional and keyword arguments.</p></li>
+</ul>
+</dd>
+<dt><a href="#id9"><span class="problematic" id="id10">*</span></a>args: Additional positional arguments. May contain tensors, although</dt><dd><p>this is not recommended, for the reasons above.</p>
+</dd>
+<dt><a href="#id11"><span class="problematic" id="id12">**</span></a>kwargs: Additional keyword arguments. May contain tensors, although</dt><dd><p>this is not recommended, for the reasons above.
+The following optional keyword arguments are reserved:
+- <cite>training</cite>: Boolean scalar tensor of Python boolean indicating</p>
+<blockquote>
+<div><p>whether the <cite>call</cite> is meant for training or inference.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><cite>mask</cite>: Boolean input mask. If the layer’s <cite>call()</cite> method takes a
+<cite>mask</cite> argument, its default value will be set to the mask generated
+for <cite>inputs</cite> by the previous layer (if <cite>input</cite> did come from a layer
+that generated a corresponding mask, i.e. if it came from a Keras
+layer with masking support).</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>A tensor or list/tuple of tensors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="servier.nodes.modeling.TransformerEncoderReadout">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">servier.nodes.modeling.</span></span><span class="sig-name descname"><span class="pre">TransformerEncoderReadout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/modeling.html#TransformerEncoderReadout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.modeling.TransformerEncoderReadout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">keras.engine.base_layer.Layer</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="servier.nodes.modeling.TransformerEncoderReadout.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/modeling.html#TransformerEncoderReadout.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.modeling.TransformerEncoderReadout.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is where the layer’s logic lives.</p>
+<p>Note here that <cite>call()</cite> method in <cite>tf.keras</cite> is little bit different
+from <cite>keras</cite> API. In <cite>keras</cite> API, you can pass support masking for
+layers as additional arguments. Whereas <cite>tf.keras</cite> has <cite>compute_mask()</cite>
+method to support masking.</p>
+<dl>
+<dt>Args:</dt><dd><dl>
+<dt>inputs: Input tensor, or dict/list/tuple of input tensors.</dt><dd><p>The first positional <cite>inputs</cite> argument is subject to special rules:
+- <cite>inputs</cite> must be explicitly passed. A layer cannot have zero</p>
+<blockquote>
+<div><p>arguments, and <cite>inputs</cite> cannot be provided via the default value
+of a keyword argument.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>NumPy array or Python scalar values in <cite>inputs</cite> get cast as tensors.</p></li>
+<li><p>Keras mask metadata is only collected from <cite>inputs</cite>.</p></li>
+<li><p>Layers are built (<cite>build(input_shape)</cite> method)
+using shape info from <cite>inputs</cite> only.</p></li>
+<li><p><cite>input_spec</cite> compatibility is only checked against <cite>inputs</cite>.</p></li>
+<li><p>Mixed precision input casting is only applied to <cite>inputs</cite>.
+If a layer has tensor arguments in <cite>*args</cite> or <cite>**kwargs</cite>, their
+casting behavior in mixed precision should be handled manually.</p></li>
+<li><p>The SavedModel input specification is generated using <cite>inputs</cite> only.</p></li>
+<li><p>Integration with various ecosystem packages like TFMOT, TFLite,
+TF.js, etc is only supported for <cite>inputs</cite> and not for tensors in
+positional and keyword arguments.</p></li>
+</ul>
+</dd>
+<dt><a href="#id13"><span class="problematic" id="id14">*</span></a>args: Additional positional arguments. May contain tensors, although</dt><dd><p>this is not recommended, for the reasons above.</p>
+</dd>
+<dt><a href="#id15"><span class="problematic" id="id16">**</span></a>kwargs: Additional keyword arguments. May contain tensors, although</dt><dd><p>this is not recommended, for the reasons above.
+The following optional keyword arguments are reserved:
+- <cite>training</cite>: Boolean scalar tensor of Python boolean indicating</p>
+<blockquote>
+<div><p>whether the <cite>call</cite> is meant for training or inference.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><cite>mask</cite>: Boolean input mask. If the layer’s <cite>call()</cite> method takes a
+<cite>mask</cite> argument, its default value will be set to the mask generated
+for <cite>inputs</cite> by the previous layer (if <cite>input</cite> did come from a layer
+that generated a corresponding mask, i.e. if it came from a Keras
+layer with masking support).</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>A tensor or list/tuple of tensors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="servier.nodes.modeling.get_imbalance_params">
+<span class="sig-prename descclassname"><span class="pre">servier.nodes.modeling.</span></span><span class="sig-name descname"><span class="pre">get_imbalance_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/servier/nodes/modeling.html#get_imbalance_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#servier.nodes.modeling.get_imbalance_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-servier.nodes">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-servier.nodes" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">servier</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">servier</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="servier.html">servier package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">servier</a><ul>
+  <li><a href="servier.html">servier package</a><ul>
+      <li>Previous: <a href="servier.html" title="previous chapter">servier package</a></li>
+      <li>Next: <a href="servier.pipelines.html" title="next chapter">servier.pipelines package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Salah Chadli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/servier.nodes.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
