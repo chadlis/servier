@@ -59,13 +59,13 @@ def main():
     train_lr = args.lr
     train_epochs = args.epochs
 
-    if experiment is None:
-        experiment = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=7)
-        )
 
     print(f"Experiment: {experiment}")
     if "split" in mode:
+        if experiment is None:
+            experiment = "".join(
+                random.choices(string.ascii_uppercase + string.digits, k=7)
+            )
         print("\nSplitting data..")
         if input_path is None:
             input_path = RAW_DATA_PATH
@@ -81,6 +81,8 @@ def main():
         valid_path = output_path
     if "train" in mode:
         print("\nTraining..")
+        if experiment is None:
+            raise Exception('No experiment was given!')
         if input_path is None:
             input_path = PRIMARY_DATA_PATH
             if valid_path is None:
@@ -104,6 +106,8 @@ def main():
         )
     if "evaluate" in mode:
         print("\nEvaluation..")
+        if experiment is None:
+            raise Exception('No experiment was given!')
         if input_path is None:
             input_path = PRIMARY_DATA_PATH
         if model_path is None:
@@ -118,6 +122,8 @@ def main():
         )
     if "predict" in mode:
         print("\nPrediction..")
+            if experiment is None:
+            raise Exception('No experiment was given!')
         if input_path is None:
             input_path = PRIMARY_DATA_PATH
         if model_path is None:
