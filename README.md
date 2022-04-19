@@ -267,6 +267,18 @@ if response.status_code == 200:
 &nbsp;
 
 
+
+Documentation
+-------
+
+Documentation was generated with Sphinx.
+[/docs/_build/html/index.html](/docs/_build/html/index.html)
+
+
+&nbsp;
+
+
+
 Credits
 -------
 
