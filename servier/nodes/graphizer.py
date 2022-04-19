@@ -1,6 +1,8 @@
 import numpy as np
 from rdkit import Chem
-import tensorflow as tf 
+import tensorflow as tf
+
+
 def molecule_from_smiles(smiles):
     """
     takes as input a SMILES and returns a molecule object.
@@ -24,7 +26,7 @@ def graph_from_molecule(molecule, atom_featurizer, bond_featurizer):
     takes as input a molecule object and returns a graph, represented as a three-tuple
     (atom_features, bond_features, pair_indices).
     """
-    
+
     # Initialize graph
     atom_features = []
     bond_features = []
@@ -57,7 +59,9 @@ def graphs_from_smiles(smiles_list, atom_featurizer, bond_featurizer):
 
     for smiles in smiles_list:
         molecule = molecule_from_smiles(smiles)
-        atom_features, bond_features, pair_indices = graph_from_molecule(molecule, atom_featurizer, bond_featurizer)
+        atom_features, bond_features, pair_indices = graph_from_molecule(
+            molecule, atom_featurizer, bond_featurizer
+        )
 
         atom_features_list.append(atom_features)
         bond_features_list.append(bond_features)

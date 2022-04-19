@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 from ..config import COL_TARGET
 
+
 class EdgeNetwork(tf.keras.layers.Layer):
     def build(self, input_shape):
         """Build the Network"""
@@ -13,7 +14,9 @@ class EdgeNetwork(tf.keras.layers.Layer):
             name="kernel",
         )
         self.bias = self.add_weight(
-            shape=(self.atom_dim * self.atom_dim), initializer="zeros", name="bias",
+            shape=(self.atom_dim * self.atom_dim),
+            initializer="zeros",
+            name="bias",
         )
         self.built = True
 
@@ -39,6 +42,7 @@ class EdgeNetwork(tf.keras.layers.Layer):
             num_segments=tf.shape(atom_features)[0],
         )
         return aggregated_features
+
 
 class MessagePassing(tf.keras.layers.Layer):
     def __init__(self, units, steps=4, **kwargs):
@@ -74,10 +78,12 @@ class MessagePassing(tf.keras.layers.Layer):
             )
         return atom_features_updated
 
+
 class PartitionPadding(tf.keras.layers.Layer):
     """
     partitions the k-step-aggregated node states into subgraphs
     """
+
     def __init__(self, batch_size, **kwargs):
         super().__init__(**kwargs)
         self.batch_size = batch_size
@@ -107,6 +113,7 @@ class PartitionPadding(tf.keras.layers.Layer):
         gather_indices = tf.squeeze(gather_indices, axis=-1)
         return tf.gather(atom_features_stacked, gather_indices, axis=0)
 
+
 class TransformerEncoderReadout(tf.keras.layers.Layer):
     def __init__(
         self, num_heads=8, embed_dim=64, dense_dim=512, batch_size=32, **kwargs
@@ -116,7 +123,10 @@ class TransformerEncoderReadout(tf.keras.layers.Layer):
         self.partition_padding = PartitionPadding(batch_size)
         self.attention = tf.keras.layers.MultiHeadAttention(num_heads, embed_dim)
         self.dense_proj = tf.keras.Sequential(
-            [tf.keras.layers.Dense(dense_dim, activation="relu"), tf.keras.layers.Dense(embed_dim),]
+            [
+                tf.keras.layers.Dense(dense_dim, activation="relu"),
+                tf.keras.layers.Dense(embed_dim),
+            ]
         )
         self.layernorm_1 = tf.keras.layers.LayerNormalization()
         self.layernorm_2 = tf.keras.layers.LayerNormalization()
@@ -131,6 +141,7 @@ class TransformerEncoderReadout(tf.keras.layers.Layer):
         proj_output = self.layernorm_2(proj_input + self.dense_proj(proj_input))
         return self.average_pooling(proj_output)
 
+
 def MPNNModel(
     atom_dim,
     bond_dim,
@@ -143,10 +154,16 @@ def MPNNModel(
 ):
     if output_bias is not None:
         output_bias = tf.keras.initializers.Constant(output_bias)
-    atom_features = tf.keras.layers.Input((atom_dim), dtype="float32", name="atom_features")
-    bond_features = tf.keras.layers.Input((bond_dim), dtype="float32", name="bond_features")
+    atom_features = tf.keras.layers.Input(
+        (atom_dim), dtype="float32", name="atom_features"
+    )
+    bond_features = tf.keras.layers.Input(
+        (bond_dim), dtype="float32", name="bond_features"
+    )
     pair_indices = tf.keras.layers.Input((2), dtype="int32", name="pair_indices")
-    molecule_indicator = tf.keras.layers.Input((), dtype="int32", name="molecule_indicator")
+    molecule_indicator = tf.keras.layers.Input(
+        (), dtype="int32", name="molecule_indicator"
+    )
 
     x = MessagePassing(message_units, message_steps)(
         [atom_features, bond_features, pair_indices]
@@ -168,10 +185,11 @@ def MPNNModel(
     )
     return model
 
+
 def get_imbalance_params(df):
     neg, pos = np.bincount(df[COL_TARGET])
     total = neg + pos
-    initial_bias = np.log([pos/neg])
+    initial_bias = np.log([pos / neg])
     weight_for_0 = (1 / neg) * (total / 2.0)
     weight_for_1 = (1 / pos) * (total / 2.0)
     class_weight = {0: weight_for_0, 1: weight_for_1}

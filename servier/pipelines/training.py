@@ -17,14 +17,24 @@ from pathlib import Path
 
 
 METRICS = [
-    keras.metrics.BinaryAccuracy(name='accuracy'),
-    keras.metrics.Precision(name='precision'),
-    keras.metrics.Recall(name='recall'),
-    keras.metrics.AUC(name='AUC'),
-    keras.metrics.AUC(name='PRC', curve='PR'), # precision-recall curve
+    keras.metrics.BinaryAccuracy(name="accuracy"),
+    keras.metrics.Precision(name="precision"),
+    keras.metrics.Recall(name="recall"),
+    keras.metrics.AUC(name="AUC"),
+    keras.metrics.AUC(name="PRC", curve="PR"),  # precision-recall curve
 ]
 
-def train(experiment, input_path, valid_path, model_path, reporting_path, learning_rate, epochs, handle_imbalance=True,):
+
+def train(
+    experiment,
+    input_path,
+    valid_path,
+    model_path,
+    reporting_path,
+    learning_rate,
+    epochs,
+    handle_imbalance=True,
+):
     """
     Create and train the model and save the artifacts and the results
     """
@@ -34,7 +44,7 @@ def train(experiment, input_path, valid_path, model_path, reporting_path, learni
     if type(input_path) == str:
         input_path = Path(input_path)
 
-    input_path = input_path/experiment
+    input_path = input_path / experiment
     input_path.mkdir(parents=True, exist_ok=True)
 
     print(f"input path: {input_path}")
@@ -49,7 +59,7 @@ def train(experiment, input_path, valid_path, model_path, reporting_path, learni
     if valid_path is not None:
         if type(valid_path) == str:
             valid_path = Path(valid_path)
-        valid_path = valid_path/experiment
+        valid_path = valid_path / experiment
         valid_path.mkdir(parents=True, exist_ok=True)
 
         df_valid = ingest_data(
@@ -100,17 +110,15 @@ def train(experiment, input_path, valid_path, model_path, reporting_path, learni
             class_weight=class_weight,
         )
 
-    model_path = model_path/experiment
+    model_path = model_path / experiment
     model_path.mkdir(parents=True, exist_ok=True)
-    model_path = model_path/MODEL_DATA_PATH_NAME
+    model_path = model_path / MODEL_DATA_PATH_NAME
     model.save(model_path)
 
-    reporting_path = reporting_path/experiment
+    reporting_path = reporting_path / experiment
     reporting_path.mkdir(parents=True, exist_ok=True)
 
-    with open(reporting_path/TRAINING_HISTORY_FILE_NAME, 'w') as outfile:
+    with open(reporting_path / TRAINING_HISTORY_FILE_NAME, "w") as outfile:
         json.dump(str(history.history), outfile)
 
-
     return model, history
-

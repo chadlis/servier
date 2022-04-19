@@ -10,18 +10,24 @@ from tensorflow import keras
 import json
 from pathlib import Path
 
-def evaluate(experiment, input_path, model_path, reporting_path,):
+
+def evaluate(
+    experiment,
+    input_path,
+    model_path,
+    reporting_path,
+):
     """
     Evaluate the model in model_path using the data in data_path
     or the testing data in 01_primary for the given experiment or the most recent experiment
     """
     if type(input_path) == str:
         input_path = Path(input_path)
-    input_path = input_path/experiment
+    input_path = input_path / experiment
     print(input_path)
     if type(model_path) == str:
         model_path = Path(model_path)
-    model_path = model_path/experiment/MODEL_DATA_PATH_NAME
+    model_path = model_path / experiment / MODEL_DATA_PATH_NAME
     print(model_path)
     df_data = ingest_data(
         input_path, files_pattern=DATA_TEST_PATTERN, msg_type="Testing Data"
@@ -30,11 +36,17 @@ def evaluate(experiment, input_path, model_path, reporting_path,):
     dataset = get_mpnn_dataset(df_data)
     model = keras.models.load_model(model_path)
     loss, accuracy, precision, recall, auc, prc = model.evaluate(dataset)
-    results = {"loss": loss, "auc": auc, "prc": prc,
-    "accuracy": accuracy, "precision": precision, "recall": recall, }
-    reporting_path = reporting_path/experiment
+    results = {
+        "loss": loss,
+        "auc": auc,
+        "prc": prc,
+        "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+    }
+    reporting_path = reporting_path / experiment
     reporting_path.mkdir(parents=True, exist_ok=True)
-    reporting_path = reporting_path/TEST_RESULTS_FILE_NAME
-    with open(reporting_path, 'w') as outfile:
+    reporting_path = reporting_path / TEST_RESULTS_FILE_NAME
+    with open(reporting_path, "w") as outfile:
         json.dump(results, outfile)
     return loss, auc

@@ -26,13 +26,16 @@ def get_last_experiment(directory):
     get the last experiment from the given directory
     """
     try:
-        experiment = max([d for d in Path(directory).glob('*/') if d.is_dir()], key=os.path.getmtime).name
+        experiment = max(
+            [d for d in Path(directory).glob("*/") if d.is_dir()], key=os.path.getmtime
+        ).name
         print("No experiment was given! Get the last one..")
         print(f"Experiment: {experiment}")
         return experiment
     except ValueError as E:
         print("No previous output available and no experience was given!")
-        raise(E)
+        raise (E)
+
 
 def main():
     """Console script for servier."""
@@ -59,8 +62,16 @@ def main():
     parser.add_argument("--experiment", type=str, help="Experiment Name")
     parser.add_argument("--lr", type=float, help="Learning Rate for training")
     parser.add_argument("--epochs", type=int, help="Epochs training")
-    parser.add_argument("--deploy", action="store_true", help="Host the trained model or the last created model")
-    parser.add_argument("--deploy_only", action="store_true", help="Only deploy the already trained model")
+    parser.add_argument(
+        "--deploy",
+        action="store_true",
+        help="Host the trained model or the last created model",
+    )
+    parser.add_argument(
+        "--deploy_only",
+        action="store_true",
+        help="Only deploy the already trained model",
+    )
 
     args = parser.parse_args()
     mode = args.mode
@@ -81,7 +92,7 @@ def main():
         host()
         return 1
     print(f"Experiment: {experiment}")
-    if ("split" in mode):
+    if "split" in mode:
         print("\nSplitting data..")
         if experiment is None:
             # generate a random experiment name if none is given

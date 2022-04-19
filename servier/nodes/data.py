@@ -1,4 +1,12 @@
-from ..config import COL_SMILES, COL_TARGET, DATA_SCHEMA, RANDOM_STATE, DATA_TRAIN_FILENAME, DATA_VALID_FILENAME, DATA_TEST_FILENAME
+from ..config import (
+    COL_SMILES,
+    COL_TARGET,
+    DATA_SCHEMA,
+    RANDOM_STATE,
+    DATA_TRAIN_FILENAME,
+    DATA_VALID_FILENAME,
+    DATA_TEST_FILENAME,
+)
 from ..config import DATA_SCHEMA, DATA_SCHEMA_PREDICTION
 
 from pandas import read_csv
@@ -7,32 +15,55 @@ from pathlib import Path
 import tensorflow as tf
 
 import logging
+
 logging.getLogger().setLevel(logging.DEBUG)
+
 
 def validate_dataframe(data, predict=False, check_balance=True):
     """
     Validate dataframe against the defined schemas
     """
     if predict:
-        data = DATA_SCHEMA_PREDICTION.validate(data).drop_duplicates(subset=[COL_SMILES])
+        data = DATA_SCHEMA_PREDICTION.validate(data).drop_duplicates(
+            subset=[COL_SMILES]
+        )
         logging.info(f" Data Validation | Finished!")
         return data
-    
+
     data = DATA_SCHEMA.validate(data).drop_duplicates(subset=[COL_SMILES, COL_TARGET])
-    
+
     if check_balance:
-        balance_proportions = (data[COL_TARGET].value_counts()/len(data)).round(2).to_dict()
-        logging.info(f" Data Validation | Dataset imbalance | Proportions: {balance_proportions}")
-        if max(balance_proportions[1]/balance_proportions[0], balance_proportions[0]/balance_proportions[1]) > 2:
+        balance_proportions = (
+            (data[COL_TARGET].value_counts() / len(data)).round(2).to_dict()
+        )
+        logging.info(
+            f" Data Validation | Dataset imbalance | Proportions: {balance_proportions}"
+        )
+        if (
+            max(
+                balance_proportions[1] / balance_proportions[0],
+                balance_proportions[0] / balance_proportions[1],
+            )
+            > 2
+        ):
             logging.warning(f" Data Validation | Dataset imbalance | Severe imbalance!")
-            
+
     logging.info(f" Data Validation | Finished!")
     return data
-    
-    
-def split_data(data_path, output_path, train_size=0.7, test_only=True, col_target=COL_TARGET, random_state=RANDOM_STATE,
-              filename_train=DATA_TRAIN_FILENAME, filename_test=DATA_TEST_FILENAME, filename_valid=DATA_VALID_FILENAME):
-    
+
+
+def split_data(
+    data_path,
+    output_path,
+    train_size=0.7,
+    test_only=True,
+    col_target=COL_TARGET,
+    random_state=RANDOM_STATE,
+    filename_train=DATA_TRAIN_FILENAME,
+    filename_test=DATA_TEST_FILENAME,
+    filename_valid=DATA_VALID_FILENAME,
+):
+
     """
     Split data to train, (validation) and test sets
     """
@@ -40,28 +71,63 @@ def split_data(data_path, output_path, train_size=0.7, test_only=True, col_targe
     output_path = Path(output_path)
     df = read_csv(data_path).reset_index(drop=True)
     df = validate_dataframe(df)
-    
+
     if test_only:
         logging.info(f" Data Splitting | Train: {train_size}, Test: {1-train_size}")
-        df_train, df_test = train_test_split(df, test_size=(1-train_size), random_state=RANDOM_STATE, stratify=df[COL_TARGET])
-        df_train.reset_index(drop=True).to_csv(output_path/filename_train, index=False,)
-        df_test.reset_index(drop=True).to_csv(output_path/filename_test, index=False,)
+        df_train, df_test = train_test_split(
+            df,
+            test_size=(1 - train_size),
+            random_state=RANDOM_STATE,
+            stratify=df[COL_TARGET],
+        )
+        df_train.reset_index(drop=True).to_csv(
+            output_path / filename_train,
+            index=False,
+        )
+        df_test.reset_index(drop=True).to_csv(
+            output_path / filename_test,
+            index=False,
+        )
         logging.info(f" Data Splitting | Finished!")
-        return str(output_path/filename_train), str(output_path/filename_test)
-    
-    logging.info(f" Data Splitting | Train: {train_size}, Valid: {round((1-train_size)/2 ,2)}, Test: {round((1-train_size)/2,2)}")
-    df_train, df_not_train = train_test_split(df, test_size=(1-train_size), random_state=RANDOM_STATE, stratify=df[COL_TARGET])
-    df_valid, df_test = train_test_split(df_not_train, test_size=0.5, random_state=RANDOM_STATE, stratify=df_not_train[COL_TARGET])
-    df_train.reset_index(drop=True).to_csv(output_path/filename_train, index=False,)
-    df_valid.reset_index(drop=True).to_csv(output_path/filename_valid, index=False,)
-    df_test.reset_index(drop=True).to_csv(output_path/filename_test, index=False,)
+        return str(output_path / filename_train), str(output_path / filename_test)
+
+    logging.info(
+        f" Data Splitting | Train: {train_size}, Valid: {round((1-train_size)/2 ,2)}, Test: {round((1-train_size)/2,2)}"
+    )
+    df_train, df_not_train = train_test_split(
+        df,
+        test_size=(1 - train_size),
+        random_state=RANDOM_STATE,
+        stratify=df[COL_TARGET],
+    )
+    df_valid, df_test = train_test_split(
+        df_not_train,
+        test_size=0.5,
+        random_state=RANDOM_STATE,
+        stratify=df_not_train[COL_TARGET],
+    )
+    df_train.reset_index(drop=True).to_csv(
+        output_path / filename_train,
+        index=False,
+    )
+    df_valid.reset_index(drop=True).to_csv(
+        output_path / filename_valid,
+        index=False,
+    )
+    df_test.reset_index(drop=True).to_csv(
+        output_path / filename_test,
+        index=False,
+    )
     logging.info(f" Data Splitting | Finished!")
-    return str(output_path/filename_train), str(output_path/filename_valid), str(output_path/filename_test)
+    return (
+        str(output_path / filename_train),
+        str(output_path / filename_valid),
+        str(output_path / filename_test),
+    )
 
 
 def prepare_batch(x_batch, y_batch):
-    """Merges (sub)graphs of batch into a single global (disconnected) graph
-    """
+    """Merges (sub)graphs of batch into a single global (disconnected) graph"""
 
     atom_features, bond_features, pair_indices = x_batch
 

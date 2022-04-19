@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 from ..config import COL_TARGET
 
+
 class EdgeNetwork(tf.keras.layers.Layer):
     def build(self, input_shape):
         self.atom_dim = input_shape[0][-1]
@@ -12,7 +13,9 @@ class EdgeNetwork(tf.keras.layers.Layer):
             name="kernel",
         )
         self.bias = self.add_weight(
-            shape=(self.atom_dim * self.atom_dim), initializer="zeros", name="bias",
+            shape=(self.atom_dim * self.atom_dim),
+            initializer="zeros",
+            name="bias",
         )
         self.built = True
 
@@ -74,7 +77,6 @@ class MessagePassing(tf.keras.layers.Layer):
         return atom_features_updated
 
 
-
 class PartitionPadding(tf.keras.layers.Layer):
     def __init__(self, batch_size, **kwargs):
         super().__init__(**kwargs)
@@ -115,7 +117,10 @@ class TransformerEncoderReadout(tf.keras.layers.Layer):
         self.partition_padding = PartitionPadding(batch_size)
         self.attention = tf.keras.layers.MultiHeadAttention(num_heads, embed_dim)
         self.dense_proj = tf.keras.Sequential(
-            [tf.keras.layers.Dense(dense_dim, activation="relu"), tf.keras.layers.Dense(embed_dim),]
+            [
+                tf.keras.layers.Dense(dense_dim, activation="relu"),
+                tf.keras.layers.Dense(embed_dim),
+            ]
         )
         self.layernorm_1 = tf.keras.layers.LayerNormalization()
         self.layernorm_2 = tf.keras.layers.LayerNormalization()
@@ -143,10 +148,16 @@ def MPNNModel(
 ):
     if output_bias is not None:
         output_bias = tf.keras.initializers.Constant(output_bias)
-    atom_features = tf.keras.layers.Input((atom_dim), dtype="float32", name="atom_features")
-    bond_features = tf.keras.layers.Input((bond_dim), dtype="float32", name="bond_features")
+    atom_features = tf.keras.layers.Input(
+        (atom_dim), dtype="float32", name="atom_features"
+    )
+    bond_features = tf.keras.layers.Input(
+        (bond_dim), dtype="float32", name="bond_features"
+    )
     pair_indices = tf.keras.layers.Input((2), dtype="int32", name="pair_indices")
-    molecule_indicator = tf.keras.layers.Input((), dtype="int32", name="molecule_indicator")
+    molecule_indicator = tf.keras.layers.Input(
+        (), dtype="int32", name="molecule_indicator"
+    )
 
     x = MessagePassing(message_units, message_steps)(
         [atom_features, bond_features, pair_indices]
@@ -156,9 +167,9 @@ def MPNNModel(
         num_attention_heads, message_units, dense_units, batch_size
     )([x, molecule_indicator])
 
-    #x = layers.Dense(dense_units, activation="relu")(x)
-    #x = layers.BatchNormalization()(x)
-    #x = layers.Dropout(0.2)(x)
+    # x = layers.Dense(dense_units, activation="relu")(x)
+    # x = layers.BatchNormalization()(x)
+    # x = layers.Dropout(0.2)(x)
     x = tf.keras.layers.Dense(dense_units, activation="relu")(x)
     x = tf.keras.layers.Dense(1, activation="sigmoid", bias_initializer=output_bias)(x)
 
@@ -172,7 +183,7 @@ def MPNNModel(
 def get_imbalance_params(df):
     neg, pos = np.bincount(df[COL_TARGET])
     total = neg + pos
-    initial_bias = np.log([pos/neg])
+    initial_bias = np.log([pos / neg])
     weight_for_0 = (1 / neg) * (total / 2.0)
     weight_for_1 = (1 / pos) * (total / 2.0)
     class_weight = {0: weight_for_0, 1: weight_for_1}

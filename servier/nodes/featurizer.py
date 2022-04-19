@@ -63,7 +63,6 @@ class BondFeaturizer(Featurizer):
         return bond.GetIsConjugated()
 
 
-    
 ATOM_FEATURIZER = AtomFeaturizer(
     allowable_sets={
         "symbol": {"B", "Br", "C", "Ca", "Cl", "F", "H", "I", "N", "Na", "O", "P", "S"},
@@ -81,16 +80,22 @@ BOND_FEATURIZER = BondFeaturizer(
 )
 
 
-def get_mpnn_dataset(data, atom_featurizer=ATOM_FEATURIZER, bond_featurizer=BOND_FEATURIZER,
-                     col_smiles=COL_SMILES, col_target=COL_TARGET, return_dims=False):
-    
+def get_mpnn_dataset(
+    data,
+    atom_featurizer=ATOM_FEATURIZER,
+    bond_featurizer=BOND_FEATURIZER,
+    col_smiles=COL_SMILES,
+    col_target=COL_TARGET,
+    return_dims=False,
+):
+
     if type(data) == DataFrame:
         x = graphs_from_smiles(data[col_smiles], atom_featurizer, bond_featurizer)
         y = data[col_target]
     else:
         x = graphs_from_smiles(data, atom_featurizer, bond_featurizer)
         y = None
-    
+
     if return_dims:
         return MPNNDataset(x, y), x[0][0][0].shape[0], x[1][0][0].shape[0]
     return MPNNDataset(x, y)
