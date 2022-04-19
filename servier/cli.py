@@ -7,7 +7,8 @@ from .config import (
     PRIMARY_DATA_PATH,
     MODEL_DATA_PATH,
     REPORTING_DATA_PATH,
-    MODEL_DATA_PATH_NAME,
+    MAX_EPOCHS,
+    LEARNING_RATE,
 )
 
 from .pipelines.data_splitting import split_data
@@ -45,6 +46,8 @@ def main():
     parser.add_argument("--reporting_path", type=str, help="Reporting path")
     parser.add_argument("--test_only", action="store_true", help="Output path")
     parser.add_argument("--experiment", type=str, help="Experiment Name")
+    parser.add_argument("--lr", type=float, help="Learning Rate for training")
+    parser.add_argument("--epochs", type=int, help="Epochs training")
 
     args = parser.parse_args()
     mode = args.mode
@@ -55,12 +58,13 @@ def main():
     reporting_path = args.reporting_path
     test_only = args.test_only
     experiment=args.experiment
+    train_lr = args.lr
+    train_epochs = args.epochs
 
     if experiment is None:
         experiment = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 7))
 
     print(f"Experiment: {experiment}")
-
     if "split" in mode:
         print("\nSplitting data..")
         if input_path is None:
@@ -82,12 +86,19 @@ def main():
             model_path = MODEL_DATA_PATH
         if reporting_path is None:
             reporting_path = REPORTING_DATA_PATH
+        if train_lr is None:
+            train_lr = LEARNING_RATE
+        if train_epochs is None:
+            train_epochs = MAX_EPOCHS
         train(
             experiment,
             input_path,
             valid_path=valid_path,
             model_path=model_path,
             reporting_path=reporting_path,
+            learning_rate=train_lr,
+            epochs=train_epochs,
+
         )
     if "evaluate" in mode:
         print("\nEvaluation..")

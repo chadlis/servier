@@ -35,7 +35,8 @@ DATA_VALID_PATTERN = "*valid.csv"
 DATA_TEST_PATTERN = "*test.csv"
 
 TRAINING_SIZE = 0.7
-MAX_EPOCHS = 1
+MAX_EPOCHS = 10
+LEARNING_RATE = 5e-4
 
 
 DATA_SCHEMA = DataFrameSchema(
