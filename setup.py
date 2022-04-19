@@ -21,6 +21,9 @@ requirements = ['pandas>=1.4.2',
 'rdkit-pypi==2022.3.1',
 'matplotlib==3.5.1',
 'flask==2.1.1',
+'waitress==2.1.1',
+'redis==4.2.2',
+'flask_caching==1.10.1',
 ]
 if ENV_DOCKERMODE is None:
    requirements.append('tensorflow==2.7.0') 
