@@ -17,9 +17,8 @@ from .pipelines.training import train
 from .pipelines.evaluation import evaluate
 from .pipelines.prediction import predict
 from .app import host
-import string    
+import string
 import random
-
 
 
 def main():
@@ -28,9 +27,9 @@ def main():
 
     parser.add_argument(
         "--mode",
-        default="split;train;evaluate;predict",
+        default="split;train;evaluate;predict;host",
         type=str,
-        #choices=["split", "train", "evaluate", "predict",],
+        # choices=["split", "train", "evaluate", "predict",],
         help="split data, train, evaluate or predict (default: %(default)s)",
     )
 
@@ -56,12 +55,14 @@ def main():
     model_path = args.model_path
     reporting_path = args.reporting_path
     test_only = args.test_only
-    experiment=args.experiment
+    experiment = args.experiment
     train_lr = args.lr
     train_epochs = args.epochs
 
     if experiment is None:
-        experiment = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 7))
+        experiment = "".join(
+            random.choices(string.ascii_uppercase + string.digits, k=7)
+        )
 
     print(f"Experiment: {experiment}")
     if "split" in mode:
@@ -70,9 +71,12 @@ def main():
             input_path = RAW_DATA_PATH
         if output_path is None:
             output_path = PRIMARY_DATA_PATH
-        split_data(experiment,
-        input_path,
-        output_path, test_only=test_only,)
+        split_data(
+            experiment,
+            input_path,
+            output_path,
+            test_only=test_only,
+        )
         input_path = output_path
         valid_path = output_path
     if "train" in mode:
@@ -97,7 +101,6 @@ def main():
             reporting_path=reporting_path,
             learning_rate=train_lr,
             epochs=train_epochs,
-
         )
     if "evaluate" in mode:
         print("\nEvaluation..")
@@ -107,7 +110,12 @@ def main():
             model_path = MODEL_DATA_PATH
         if reporting_path is None:
             reporting_path = REPORTING_DATA_PATH
-        evaluate(experiment, input_path, model_path, reporting_path,)
+        evaluate(
+            experiment,
+            input_path,
+            model_path,
+            reporting_path,
+        )
     if "predict" in mode:
         print("\nPrediction..")
         if input_path is None:
@@ -116,14 +124,15 @@ def main():
             model_path = MODEL_DATA_PATH
         if reporting_path is None:
             reporting_path = REPORTING_DATA_PATH
-        predict(experiment, model_path, reporting_path, data_path=input_path,)
+        predict(
+            experiment,
+            model_path,
+            reporting_path,
+            data_path=input_path,
+        )
     if "host" in mode:
-        print("\n Hosting app..")
+        print("\nHosting app..")
         host()
-
-
-
-
 
 
 if __name__ == "__main__":
