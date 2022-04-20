@@ -142,6 +142,13 @@ The data format will be checked to see if it's correct. The example below shows 
 
 &nbsp;
 
+### `Data input example`<br />
+P1,mol_id,smiles <br/>
+1,CID2999678,Cc1cccc(N2CCN(C(=O)C34CC5CC(CC(C5)C3)C4)CC2)c1C <br/>
+0,CID2999679,Cn1ccnc1SCC(=O)Nc1ccc(Oc2ccccc2)cc1 <br/>
+
+&nbsp;
+
 ### 3. Install the package locally <br />
 <pre>
 pip install -e .
@@ -169,10 +176,15 @@ Deployment
 
 &nbsp;
 
-### 1. Install git, docker and docker-compose <br />
+### 1. Install git, docker and docker-compose and start docker <br />
 Git: https://github.com/git-guides/install-git <br />
 Docker: https://docs.docker.com/get-docker/ <br />
 Docker-compose: https://docs.docker.com/compose/install/ <br />
+
+Start Docker:
+<pre>
+sudo service docker start
+</pre>
 
 &nbsp;
 
