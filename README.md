@@ -40,6 +40,7 @@ As the data is unbalanced, the bias initialization (for the last layer) the clas
 
 An early stopping and an automatic lr reduction on Plateau were added too.
 
+
 &nbsp;
 
 
@@ -50,6 +51,9 @@ The metric used to evaluate the model is the ROC-AUC. As no indication was given
 When the data is unbalanced, some argue that tracking PR-AUC is better as it reflects better the unbalance. As we will see, both metrics were improved by model 2.
 
 Example: If the capacity of verifying afterward that the molecule has indeed the predicted property is very limited, we may want to make the threshold higher to predict 1 only when the model is certain (higher precision but low recall)
+
+
+Considering the small volume of data, a cross-validation loop would reflect better the real performance of the model and its variance depending on the input data. An uncertainty estimation procedure can be added too if needed.
 
 &nbsp;
 
@@ -87,13 +91,6 @@ Adding more feature based on experts knowledge or litterature may help the model
 
 &nbsp;
 
-### Feature Extraction
-
-Only about a handful of (atom and bond) features were considered: symbol (element), number of valence electrons, number of hydrogen bonds, orbital hybridization, (covalent) bond type, and conjugation.
-
-Adding more feature based on experts knowledge or litterature may help the model.
-
-&nbsp;
 
 ### Neural Architecture Search
 
@@ -165,8 +162,6 @@ servier --deploy_only
 </pre>
 The model will deploy the endpoint in the port 8000. <br />
 Waitress was used as an WSGI and Redis for the caching mechanism.
-
-### 6. Deploy the trained model with docker-compose
 
 
 Deployment
