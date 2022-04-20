@@ -167,7 +167,7 @@ The training history, the test_results and predictions will be available in  `da
 <pre>
 servier --deploy_only
 </pre>
-The model will deploy the endpoint in the port 8000. <br />
+The model will deploy the endpoint in the port 5000. <br />
 Waitress was used as an WSGI and Redis for the caching mechanism.
 
 
