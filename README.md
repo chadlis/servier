@@ -218,7 +218,7 @@ However, the deploy was also tested in a AWS EC2 linux machine.
 &nbsp;
 
 ### 5. Run the full pipeline of splitting the data, training the model and testing it <br />
-`docker-compose train` <br />
+`docker-compose up train` <br />
 Other commands are available in `docker-compose.yml`. They can also be modified if desired.
 Multiple options and arguments are available for commands (see. `servier/cli.py`) <br />
 The training history, the test_results and predictions will be available in  `data/4_reporting` 
